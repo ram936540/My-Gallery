@@ -180,17 +180,36 @@
     </div>
   </div>
 
-  <!-- Upload Modal -->
+  <!-- ==================== ATTRACTIVE UPLOAD MODAL ==================== -->
   <div class="modal" id="uploadModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('uploadModal')">×</span>
-      <h2>✦ UPLOAD IMAGES ✦</h2>
-      <input type="file" id="imageUpload" accept="image/*" multiple/>
-      <select id="uploadSectionSelect" style="width:100%; padding:16px; margin:25px 0; background:#1a0033; border:2px solid #6b46c1; border-radius:12px; color:white;"></select>
+    <div class="modal-content" style="max-width:480px; padding:40px 30px; background: linear-gradient(135deg, #1f003d, #2e0055); border:3px solid #22d3ee;">
+      <span class="close" onclick="closeModal('uploadModal')" style="color:#22d3ee; font-size:40px;">×</span>
       
-      <div style="margin-top:30px;">
-        <button onclick="uploadImages()" style="background:#22d3ee; color:black; border:none; padding:16px 50px; font-size:1.2rem;">🚀 UPLOAD NOW</button>
-        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; margin-left:15px; color:#22d3ee;">CANCEL</button>
+      <h2 style="font-size:2.1rem; margin-bottom:8px; background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        📤 Upload Images
+      </h2>
+      <p style="color:#a5b4fc; margin-bottom:25px;">Choose your section and drop your memories</p>
+      
+      <input type="file" id="imageUpload" accept="image/*" multiple 
+             style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; 
+                    border-radius:16px; color:white; text-align:center; cursor:pointer; margin-bottom:20px;"/>
+      
+      <select id="uploadSectionSelect" 
+              style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; 
+                     border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;">
+      </select>
+      
+      <div style="margin-top:10px;">
+        <button onclick="uploadImages()" 
+                style="background:linear-gradient(90deg, #22d3ee, #7c3aed); color:black; border:none; 
+                       padding:16px 55px; font-size:1.2rem; border-radius:50px; font-weight:bold;">
+          🚀 Upload Now
+        </button>
+        <button onclick="closeModal('uploadModal')" 
+                style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; 
+                       margin-left:15px; color:#22d3ee; border-radius:50px;">
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -235,7 +254,7 @@
     let selectedIds = new Set();
     const CORRECT_PASSWORD = "Krrish@123";
 
-    // Sirf 5 Naye Sections (sec16 se sec20)
+    // Sirf 5 Naye Sections
     const newSections = [
       { section_key: "sec16", section_name: "Macro Shots", position: 16 },
       { section_key: "sec17", section_name: "Night Photography", position: 17 },
@@ -246,7 +265,6 @@
 
     async function addNewSections() {
       for (let sec of newSections) {
-        // Sirf tab insert karega jab section nahi hai
         const { data } = await supabaseClient.from("gallery_sections").select("*").eq("section_key", sec.section_key).single();
         if (!data) {
           await supabaseClient.from("gallery_sections").insert(sec);
@@ -255,7 +273,7 @@
     }
 
     async function loadSections() {
-      await addNewSections();   // Naye sections add karne ke liye
+      await addNewSections();
       const { data } = await supabaseClient.from("gallery_sections").select("*").order("position");
       sections = data || [];
       renderNavigation();
@@ -309,7 +327,6 @@
       });
     }
 
-    // Baaki saare functions same rakhe hain
     function toggleSelect(card, id) {
       if (selectedIds.has(id)) {
         selectedIds.delete(id);
