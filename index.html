@@ -10,7 +10,7 @@
     *{ margin:0; padding:0; box-sizing:border-box; }
     body{ background:#0a001f; color:white; font-family:Arial,sans-serif; overflow-x:hidden; }
 
-    /* ==================== PASSWORD SCREEN ==================== */
+    /* PASSWORD SCREEN */
     #passwordScreen {
       position: fixed; inset: 0; background: #0a001f;
       display: flex; justify-content: center; align-items: center; 
@@ -44,10 +44,10 @@
 
     #passwordError { color:#ff3366; margin-top:10px; display:none; font-size: 1.1rem; }
 
-    /* ==================== MAIN HEADER ==================== */
+    /* ==================== MAIN HEADER (Fixed) ==================== */
     header{ 
       text-align:center; 
-      padding: 40px 20px 10px; 
+      padding: 80px 20px 15px;   /* ← Yahan badhaya hai */
       position:relative; 
     }
 
@@ -65,12 +65,11 @@
 
     .header-buttons{ 
       position:absolute; 
-      top:20px; 
+      top:25px; 
       right:20px; 
       display:flex; 
       gap:12px; 
-      flex-wrap:wrap; 
-      justify-content:flex-end; 
+      z-index: 10;
     }
 
     button{
@@ -89,7 +88,7 @@
     .delete-mode-btn{ border-color:#ff3366; color:#ff3366; }
     .delete-mode-btn.active{ background:#ff3366; color:white; }
 
-    /* ==================== NAVIGATION (Sections) ==================== */
+    /* Navigation */
     .nav{ 
       display:flex; 
       justify-content:center; 
@@ -113,7 +112,6 @@
       background:#ff00ff; 
       border-color:#ff00ff; 
       color:black; 
-      font-weight: bold;
     }
 
     .gallery{
