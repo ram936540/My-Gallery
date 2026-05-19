@@ -35,13 +35,23 @@
       position:relative; cursor:pointer;
     }
     .nft-card img{
-      width:100%; aspect-ratio:1/1; object-fit:cover;
+      width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
     }
     .nft-card.selected::after{
-      content: "✓"; position:absolute; top:10px; right:10px;
+      content: "✓";
+      position:absolute; top:10px; right:10px;
       background:#00ff88; color:black; width:32px; height:32px;
       border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-weight:bold; border:3px solid white;
+      font-weight:bold; border:3px solid white; font-size:18px;
+    }
+
+    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; padding:25px; } }
+
+    #passwordScreen {
+      position: fixed; inset: 0; background: #0a001f;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; flex-direction: column; gap: 25px;
     }
 
     .modal{
@@ -50,11 +60,11 @@
     }
 
     .modal-content{
-      background: linear-gradient(135deg, #2a004d, #4b0082);
-      width:100%; max-width:520px; border-radius:32px;
-      padding:50px 40px; position:relative; 
-      border:5px solid #ff00ff;
-      box-shadow:0 0 90px rgba(255, 0, 255, 0.9);
+      background: linear-gradient(135deg, #1f003d, #2e0055);
+      width:100%; max-width:500px; border-radius:30px;
+      padding:45px 35px; position:relative; 
+      border:4px solid #ff00ff;
+      box-shadow:0 0 80px rgba(255, 0, 255, 0.8);
       text-align:center;
     }
 
@@ -63,30 +73,20 @@
       cursor:pointer; color:#ff00ff;
     }
 
-    /* Fun Loader with Tom & Jerry */
     .loader-overlay{
-      position:fixed; inset:0; background:rgba(10,0,31,0.98);
+      position:fixed; inset:0; background:rgba(0,0,0,0.96);
       display:none; justify-content:center; align-items:center;
       flex-direction:column; z-index:99999;
     }
     .loader{
-      width:160px; height:160px; 
-      animation: bounce 1.3s infinite alternate;
+      width:90px; height:90px; border:8px solid #222;
+      border-top:8px solid #00ffff; border-radius:50%; 
+      animation:spin 1s linear infinite;
     }
-    @keyframes bounce {
-      from { transform: translateY(0); }
-      to { transform: translateY(-40px); }
-    }
+    @keyframes spin{ 100%{ transform:rotate(360deg); } }
 
-    .loader-text{ 
-      margin-top:25px; 
-      color:#00ffff; 
-      font-size:2.1rem; 
-      font-weight:bold; 
-      text-shadow:0 0 20px #ff00ff;
-    }
-
-    .progress-text{ margin-top:10px; color:#fff; font-size:1.6rem; font-weight:bold; }
+    .loader-text{ margin-top:30px; color:#00ffff; font-size:1.8rem; font-weight:bold; }
+    .progress-text{ margin-top:15px; color:#fff; font-size:1.5rem; font-weight:bold; }
   </style>
 </head>
 <body>
@@ -118,7 +118,8 @@
     </section>
 
     <!-- Delete Bar -->
-    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#ff0033; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(255,0,51,0.7); z-index:10000;">
+    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); 
+         background:#ff0033; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(255,0,51,0.7); z-index:10000;">
       <span id="selectedCount">0 Selected</span>
       <button onclick="deleteSelected()" style="margin-left:25px; background:white; color:#ff0033; border:none; padding:10px 24px; border-radius:30px;">DELETE SELECTED</button>
       <button onclick="exitDeleteMode()" style="margin-left:12px; background:transparent; border:2px solid white; color:white; padding:10px 20px; border-radius:30px;">Cancel</button>
@@ -129,16 +130,25 @@
   <div class="modal" id="uploadModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('uploadModal')">×</span>
-      <h2>✦ UPLOAD YOUR IMAGES ✦</h2>
-      
+      <h2>✦ UPLOAD IMAGES ✦</h2>
       <input type="file" id="imageUpload" accept="image/*" multiple/>
+      <select id="uploadSectionSelect" style="width:100%; padding:16px; margin:20px 0; background:#0f0022; border:2px solid #6600aa; border-radius:15px; color:white;"></select>
       
-      <select id="uploadSectionSelect" style="width:100%; padding:16px; margin:25px 0;"></select>
-      
-      <div style="margin-top:30px;">
-        <button onclick="uploadImages()" style="background:#00ff88; color:black; border:none; padding:16px 50px; font-size:1.2rem;">🚀 UPLOAD NOW</button>
-        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #ff00ff; padding:16px 40px; margin-left:15px;">CANCEL</button>
+      <div class="modal-buttons">
+        <button onclick="uploadImages()" style="background:#00ff88; color:black; border:none; padding:16px 40px;">UPLOAD NOW</button>
+        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #ff00ff; padding:16px 35px;">CANCEL</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Edit Sections Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2>Edit Section Names</h2>
+      <div id="sectionsList" style="max-height:400px; overflow-y:auto; text-align:left; padding:10px;"></div>
+      <br>
+      <button onclick="saveSectionNames()" style="background:#00ff88; color:black; padding:12px 30px;">SAVE CHANGES</button>
+      <button onclick="closeModal('editModal')" style="margin-left:10px;">CLOSE</button>
     </div>
   </div>
 
@@ -150,12 +160,10 @@
     </div>
   </div>
 
-  <!-- Tom & Jerry Style Loader -->
+  <!-- Loader -->
   <div class="loader-overlay" id="loader">
-    <div class="loader">
-      <img src="https://i.imgur.com/8vJ8z3K.gif" width="160" alt="Tom and Jerry Animation">
-    </div>
-    <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
+    <div class="loader"></div>
+    <div class="loader-text" id="loaderText">Uploading Images...</div>
     <div class="progress-text" id="progressText">0 / 0</div>
   </div>
 
@@ -270,6 +278,7 @@
 
       const loader = document.getElementById("loader");
       loader.style.display = "flex";
+      document.getElementById("loaderText").innerText = "Uploading Images...";
       document.getElementById("progressText").innerText = `0 / ${files.length}`;
 
       const sectionKey = document.getElementById("uploadSectionSelect").value;
@@ -289,18 +298,17 @@
             img: urlData.publicUrl,
             section: sectionKey
           }]);
-
           count++;
           document.getElementById("progressText").innerText = `${count} / ${files.length}`;
         } catch (err) { console.log(err); }
       }
 
-      document.getElementById("loaderText").innerText = "✅ Upload Complete! 🎉";
+      document.getElementById("loaderText").innerText = "✅ Upload Complete!";
       setTimeout(() => {
         loader.style.display = "none";
-        closeModal('uploadModal');
+        closeModal("uploadModal");
         loadPhotos(currentSectionKey);
-      }, 2200);
+      }, 1800);
     }
 
     function showEditModal() {
@@ -320,11 +328,9 @@
       for (let input of inputs) {
         const key = input.dataset.key;
         const name = input.value.trim();
-        if (name) {
-          await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
-        }
+        if (name) await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
       }
-      alert("Section names updated successfully!");
+      alert("Section names updated!");
       closeModal("editModal");
       loadSections();
     }
@@ -368,6 +374,10 @@
     document.getElementById("passwordInput").addEventListener("keypress", e => {
       if (e.key === "Enter") checkPassword();
     });
+
+    // Close modals
+    document.getElementById("closeUpload").onclick = () => closeModal("uploadModal");
+    document.getElementById("closePreview").onclick = () => closeModal("previewModal");
   </script>
 </body>
 </html>
