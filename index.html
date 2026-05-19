@@ -58,48 +58,35 @@
       text-align:center;
     }
 
-    .modal-content h2{
-      font-size:2.2rem; color:#ff00ff; margin-bottom:30px;
-      text-shadow:0 0 20px #ff00ff;
-    }
-
-    .modal-content input[type="file"]{
-      width:100%; padding:25px; background:#0f0022;
-      border:4px dashed #00ffff; border-radius:20px;
-      color:#00ffff; font-size:1.1rem; margin:20px 0; cursor:pointer;
-    }
-
-    .modal-content select{
-      width:100%; padding:16px; background:#0f0022;
-      border:2px solid #ff00ff; border-radius:15px;
-      color:white; font-size:1.1rem; margin:20px 0;
-    }
-
     .close{
       position:absolute; top:15px; right:25px; font-size:42px;
       cursor:pointer; color:#ff00ff;
     }
 
-    /* Fun Loader */
+    /* Fun Loader with Tom & Jerry */
     .loader-overlay{
       position:fixed; inset:0; background:rgba(10,0,31,0.98);
       display:none; justify-content:center; align-items:center;
       flex-direction:column; z-index:99999;
     }
     .loader{
-      width:130px; height:130px; animation: bounce 1.2s infinite alternate;
+      width:160px; height:160px; 
+      animation: bounce 1.3s infinite alternate;
     }
     @keyframes bounce {
       from { transform: translateY(0); }
-      to { transform: translateY(-35px); }
+      to { transform: translateY(-40px); }
     }
 
     .loader-text{ 
-      margin-top:30px; color:#00ffff; font-size:2rem; 
-      font-weight:bold; text-shadow:0 0 20px #00ffff;
+      margin-top:25px; 
+      color:#00ffff; 
+      font-size:2.1rem; 
+      font-weight:bold; 
+      text-shadow:0 0 20px #ff00ff;
     }
 
-    .progress-text{ margin-top:15px; color:#fff; font-size:1.6rem; font-weight:bold; }
+    .progress-text{ margin-top:10px; color:#fff; font-size:1.6rem; font-weight:bold; }
   </style>
 </head>
 <body>
@@ -163,12 +150,12 @@
     </div>
   </div>
 
-  <!-- Fun Uploading Screen -->
+  <!-- Tom & Jerry Style Loader -->
   <div class="loader-overlay" id="loader">
     <div class="loader">
-      <img src="https://i.imgur.com/2Z4v8zL.gif" width="130" alt="fun loader">
+      <img src="https://i.imgur.com/8vJ8z3K.gif" width="160" alt="Tom and Jerry Animation">
     </div>
-    <div class="loader-text" id="loaderText">Uploading... 🎨</div>
+    <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
     <div class="progress-text" id="progressText">0 / 0</div>
   </div>
 
@@ -313,7 +300,7 @@
         loader.style.display = "none";
         closeModal('uploadModal');
         loadPhotos(currentSectionKey);
-      }, 2000);
+      }, 2200);
     }
 
     function showEditModal() {
@@ -333,7 +320,9 @@
       for (let input of inputs) {
         const key = input.dataset.key;
         const name = input.value.trim();
-        if (name) await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
+        if (name) {
+          await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
+        }
       }
       alert("Section names updated successfully!");
       closeModal("editModal");
@@ -355,7 +344,7 @@
       }
     }
 
-    // Button Events
+    // Event Listeners
     document.getElementById("uploadBtn").addEventListener("click", () => {
       const select = document.getElementById("uploadSectionSelect");
       select.innerHTML = "";
