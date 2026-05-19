@@ -1,624 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>My Cloud Gallery</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, sans-serif;
-}
-
-body{
-  background:
-  linear-gradient(
-    135deg,
-    #0f172a,
-    #111827,
-    #1e293b
-  );
-
-  min-height:100vh;
-
-  color:white;
-
-  padding:20px;
-}
-
-.container{
-  max-width:1400px;
-  margin:auto;
-}
-
-.top{
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  gap:15px;
-
-  flex-wrap:wrap;
-
-  margin-bottom:25px;
-}
-
-.logo{
-
-  font-size:34px;
-  font-weight:bold;
-}
-
-.logo span{
-  color:#3b82f6;
-}
-
-.album-create{
-
-  display:flex;
-  gap:10px;
-
-  flex-wrap:wrap;
-}
-
-input{
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:14px;
-
-  background:#1e293b;
-
-  color:white;
-
-  min-width:220px;
-
-  outline:none;
-
-  font-size:16px;
-}
-
-button{
-
-  border:none;
-
-  border-radius:14px;
-
-  padding:14px 18px;
-
-  cursor:pointer;
-
-  color:white;
-
-  font-weight:bold;
-
-  transition:0.2s;
-}
-
-.primary{
-
-  background:#2563eb;
-}
-
-.primary:hover{
-
-  background:#1d4ed8;
-
-  transform:translateY(-2px);
-}
-
-.albums{
-
-  display:flex;
-
-  gap:12px;
-
-  flex-wrap:wrap;
-
-  margin-bottom:25px;
-}
-
-.album{
-
-  background:#1e293b;
-
-  padding:12px 18px;
-
-  border-radius:14px;
-
-  cursor:pointer;
-
-  transition:0.2s;
-
-  border:2px solid transparent;
-}
-
-.album:hover{
-
-  transform:scale(1.04);
-}
-
-.album.active{
-
-  border-color:#3b82f6;
-
-  background:#172554;
-}
-
-.upload-box{
-
-  background:rgba(255,255,255,0.05);
-
-  border:2px dashed rgba(255,255,255,0.2);
-
-  padding:25px;
-
-  border-radius:20px;
-
-  margin-bottom:30px;
-
-  backdrop-filter:blur(10px);
-}
-
-.gallery{
-
-  display:grid;
-
-  grid-template-columns:
-  repeat(auto-fill,minmax(230px,1fr));
-
-  gap:20px;
-}
-
-.card{
-
-  background:rgba(255,255,255,0.05);
-
-  border-radius:20px;
-
-  overflow:hidden;
-
-  backdrop-filter:blur(10px);
-
-  transition:0.25s;
-
-  border:1px solid rgba(255,255,255,0.1);
-}
-
-.card:hover{
-
-  transform:translateY(-5px);
-
-  box-shadow:
-  0 10px 30px rgba(0,0,0,0.3);
-}
-
-.card img{
-
-  width:100%;
-
-  height:220px;
-
-  object-fit:cover;
-}
-
-.card-body{
-
-  padding:15px;
-}
-
-.card-buttons{
-
-  display:flex;
-
-  gap:10px;
-
-  margin-top:10px;
-}
-
-.download{
-
-  background:#10b981;
-  flex:1;
-}
-
-.delete{
-
-  background:#ef4444;
-  flex:1;
-}
-
-.download:hover{
-
-  background:#059669;
-}
-
-.delete:hover{
-
-  background:#dc2626;
-}
-
-.empty{
-
-  text-align:center;
-
-  margin-top:60px;
-
-  opacity:0.6;
-
-  font-size:20px;
-}
-
-.footer{
-
-  text-align:center;
-
-  margin-top:40px;
-
-  opacity:0.6;
-}
-
-@media(max-width:700px){
-
-  .top{
-
-    flex-direction:column;
-
-    align-items:flex-start;
-  }
-
-  .album-create{
-
-    width:100%;
-  }
-
-  input{
-
-    width:100%;
-  }
-
-  button{
-
-    width:100%;
-  }
-
-}
-
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MY GALLERY</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{ background:#0a001f; color:white; font-family:Arial,sans-serif; overflow-x:hidden; }
+
+    header{ text-align:center; padding:60px 20px 20px; position:relative; }
+    h1{ font-size:5rem; color:#ff00ff; text-shadow:0 0 25px #ff00ff; margin-bottom:15px; }
+
+    .header-buttons{ position:absolute; top:20px; right:20px; display:flex; gap:12px; }
+
+    button{
+      padding:12px 28px; background:transparent; border:2px solid #00ffff;
+      color:#00ffff; border-radius:50px; cursor:pointer; font-weight:bold; transition:0.3s;
+    }
+    button:hover{ background:#00ffff; color:black; transform:scale(1.05); }
+
+    .nav{ display:flex; justify-content:center; gap:20px; padding:20px; background:#140029; flex-wrap:wrap; }
+    .nav-btn.active{ background:#ff00ff; border-color:#ff00ff; color:black; }
+
+    .section{ display:none; }
+    .section.active{ display:block; }
+
+    .gallery{
+      width:100%; padding:8px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    }
+    .nft-card{
+      background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #440066;
+    }
+    .nft-card img{
+      width:100%; aspect-ratio:1/1; object-fit:cover; display:block; cursor:pointer;
+    }
+
+    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:12px; } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:15px; padding:20px; } }
+
+    .modal{
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
+      z-index:1000; justify-content:center; align-items:center; padding:20px;
+    }
+
+    .modal-content{
+      background:#1a0033; width:100%; max-width:520px; border-radius:28px;
+      padding:35px 30px; position:relative; border:3px solid #ff00ff;
+      box-shadow:0 0 50px rgba(255, 0, 255, 0.6);
+    }
+
+    .close{
+      position:absolute; top:15px; right:25px; font-size:42px;
+      cursor:pointer; color:#ff00ff;
+    }
+    .close:hover{ color:#ff66ff; transform:rotate(90deg); }
+
+    .modal-content img{
+      width:100%; max-height:460px; object-fit:contain; border-radius:16px;
+      background:#0a001f; border:2px solid #440066;
+    }
+
+    .delete-btn{
+      margin-top:15px; width:100%; padding:12px; border:none;
+      border-radius:10px; background:#ff0033; color:white; cursor:pointer;
+    }
+
+    .loader-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,0.94);
+      display:none; justify-content:center; align-items:center;
+      flex-direction:column; z-index:99999;
+    }
+    .loader{
+      width:80px; height:80px; border:7px solid #333;
+      border-top:7px solid #00ffff; border-radius:50%; animation:spin 1s linear infinite;
+    }
+    @keyframes spin{ 100%{ transform:rotate(360deg); } }
+
+    .loader-text{ margin-top:25px; color:#00ffff; font-size:1.5rem; font-weight:bold; }
+    .progress-text{ margin-top:12px; color:#fff; font-size:1.3rem; }
+  </style>
 </head>
 <body>
 
-<div class="container">
+  <header>
+    <h1>MY GALLERY</h1>
+    <div class="header-buttons">
+      <button id="loginBtn">LOGIN</button>
+      <button id="uploadBtn" style="display:none;">UPLOAD NFT</button>
+    </div>
+  </header>
 
-<div class="top">
+  <nav class="nav">
+    <button class="nav-btn active" id="xyzBtn">XYZ</button>
+    <button class="nav-btn" id="xyzsBtn">XYZS</button>
+  </nav>
 
-  <div class="logo">
-    ☁ <span>My Cloud Gallery</span>
+  <section id="xyz-section" class="section active">
+    <div class="gallery" id="xyz-gallery"></div>
+  </section>
+
+  <section id="xyzs-section" class="section">
+    <div class="gallery" id="xyzs-gallery"></div>
+  </section>
+
+  <!-- UPLOAD MODAL -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content">
+      <span class="close" id="closeUpload">&times;</span>
+      <h2>✦ UPLOAD NEW NFT ✦</h2>
+      
+      <input type="file" id="imageUpload" accept="image/*" multiple/>
+      
+      <select id="nftSection">
+        <option value="xyz">XYZ</option>
+        <option value="xyzs">XYZS</option>
+      </select>
+      
+      <div style="margin-top:30px; text-align:center;">
+        <button onclick="uploadNFTs()">UPLOAD NOW</button>
+        <button onclick="closeUploadModal()">CANCEL</button>
+      </div>
+    </div>
   </div>
 
-  <div class="album-create">
-
-    <input
-      type="text"
-      id="albumInput"
-      placeholder="Create new album"
-    >
-
-    <button
-      class="primary"
-      onclick="addAlbum()"
-    >
-      ➕ Add Album
-    </button>
-
+  <!-- PREVIEW MODAL -->
+  <div class="modal" id="previewModal">
+    <div class="modal-content">
+      <span class="close" id="closePreview">&times;</span>
+      <img id="modalImage" src="" alt="NFT Image">
+    </div>
   </div>
 
-</div>
+  <!-- LOADER -->
+  <div class="loader-overlay" id="loader">
+    <div class="loader"></div>
+    <div class="loader-text" id="loaderText">Uploading NFTs...</div>
+    <div class="progress-text" id="progressText">0/0</div>
+  </div>
 
-<div class="albums" id="albums"></div>
+  <script>
+    const SUPABASE_URL = "https://mqhckgezaxswrroqwnvt.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGNrZ2V6YXhzd3Jyb3F3bnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjgzNzUsImV4cCI6MjA5NDcwNDM3NX0.6vtCwg6Wu0r4RSD6yAfCh4wP7aovhoEiBYpCRYMIe6s";
 
-<div class="upload-box">
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  <input
-    type="file"
-    id="fileInput"
-    multiple
-    accept="image/*"
-  >
+    let xyzData = [];
+    let xyzsData = [];
+    let isLoggedIn = false;
 
-  <button
-    class="primary"
-    onclick="uploadPhotos()"
-  >
-    ⬆ Upload Photos
-  </button>
+    async function loadNFTs(){
+      const { data } = await supabaseClient.from("nfts_data").select("*").order("id", { ascending: false });
 
-</div>
+      xyzData = [];
+      xyzsData = [];
 
-<div class="gallery" id="gallery"></div>
+      data.forEach(item => {
+        const nft = { id: item.id, img: item.img, section: item.section };
+        if (item.section === "xyz") xyzData.push(nft);
+        else if (item.section === "xyzs") xyzsData.push(nft);
+      });
 
-<div class="empty" id="empty">
-  📂 No Photos Found
-</div>
+      renderGallery("xyz-gallery", xyzData);
+      renderGallery("xyzs-gallery", xyzsData);
+    }
 
-<div class="footer">
-  Made with ❤️ using Supabase
-</div>
+    function renderGallery(containerId, data){
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
-</div>
+      if(data.length === 0){
+        container.innerHTML = "<h2 style='text-align:center;width:100%;padding:40px;'>No NFTs Yet</h2>";
+        return;
+      }
 
-<script>
+      data.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "nft-card";
+        card.innerHTML = `<img src="${item.img}" alt="NFT">`;
 
-// =========================
-// SUPABASE
-// =========================
+        if(isLoggedIn){
+          const delBtn = document.createElement("button");
+          delBtn.className = "delete-btn";
+          delBtn.innerText = "DELETE";
+          delBtn.onclick = () => deleteNFT(item.id);
+          card.appendChild(delBtn);
+        }
 
-const supabaseUrl =
-"https://mqhckgezaxswrroqwnvt.supabase.co";
+        card.querySelector("img").onclick = () => {
+          document.getElementById("modalImage").src = item.img;
+          document.getElementById("previewModal").style.display = "flex";
+        };
+        container.appendChild(card);
+      });
+    }
 
-const supabaseKey =
-"PASTE_YOUR_REAL_ANON_KEY";
+    async function deleteNFT(id){
+      if(!confirm("Delete this NFT permanently from everywhere?")) return;
 
-const supabase =
-window.supabase.createClient(
-  supabaseUrl,
-  supabaseKey
-);
+      try {
+        const { data: nft } = await supabaseClient
+          .from("nfts_data")
+          .select("img")
+          .eq("id", id)
+          .single();
 
-// =========================
-// ALBUMS
-// =========================
+        if(nft && nft.img){
+          const imagePath = nft.img.split("/nfts/")[1];
+          if(imagePath){
+            await supabaseClient.storage.from("nfts").remove([imagePath]);
+          }
+        }
 
-let albums =
-JSON.parse(
-  localStorage.getItem("albums")
-) || ["Default"];
+        await supabaseClient.from("nfts_data").delete().eq("id", id);
 
-let currentAlbum = albums[0];
+        alert("NFT Deleted Successfully");
+        await loadNFTs();
+      } catch(err){
+        console.error(err);
+        alert("Delete Failed");
+      }
+    }
 
-renderAlbums();
+    async function uploadNFTs(){
+      const files = document.getElementById("imageUpload").files;
+      if(files.length === 0) return alert("Please select images");
 
-function addAlbum(){
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "Uploading...";
+      document.getElementById("progressText").innerText = `0/${files.length}`;
 
-  const input =
-  document.getElementById("albumInput");
+      const section = document.getElementById("nftSection").value;
 
-  const name =
-  input.value.trim();
+      let uploadedCount = 0;
 
-  if(!name){
+      for(let i = 0; i < files.length; i++){
+        const file = files[i];
+        try{
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${file.name.split('.').pop()}`;
+          const path = `${section}/${fileName}`;
 
-    alert("Enter album name");
+          await supabaseClient.storage.from("nfts").upload(path, file, { upsert: true });
+          const { data: urlData } = supabaseClient.storage.from("nfts").getPublicUrl(path);
 
-    return;
-  }
+          await supabaseClient.from("nfts_data").insert([{
+            title: "Untitled",
+            description: "",
+            img: urlData.publicUrl,
+            section: section
+          }]);
 
-  if(albums.includes(name)){
+          uploadedCount++;
+          document.getElementById("progressText").innerText = `${uploadedCount}/${files.length}`;
+        } catch(err){
+          console.log(err);
+        }
+      }
 
-    alert("Album already exists");
+      document.getElementById("loaderText").innerText = "✅ Upload Complete!";
+      document.getElementById("progressText").innerText = `${uploadedCount} NFT(s) Uploaded Successfully`;
 
-    return;
-  }
+      await loadNFTs();
 
-  albums.push(name);
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        closeUploadModal();
+      }, 1800);
+    }
 
-  localStorage.setItem(
-    "albums",
-    JSON.stringify(albums)
-  );
+    function closeUploadModal(){
+      document.getElementById("uploadModal").style.display = "none";
+    }
 
-  currentAlbum = name;
+    // Login
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      if(isLoggedIn){
+        isLoggedIn = false;
+        document.getElementById("loginBtn").innerText = "LOGIN";
+        document.getElementById("uploadBtn").style.display = "none";
+        loadNFTs();
+        alert("Logged Out");
+        return;
+      }
+      const secret = prompt("Enter Secret Word");
+      if(secret === "tmkc" || secret === "Tmkc"){
+        isLoggedIn = true;
+        document.getElementById("loginBtn").innerText = "LOGOUT";
+        document.getElementById("uploadBtn").style.display = "block";
+        loadNFTs();
+        alert("Login Successful");
+      } else alert("Wrong Secret Word");
+    });
 
-  input.value = "";
+    document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("uploadModal").style.display = "flex");
 
-  renderAlbums();
+    document.getElementById("closePreview").onclick = () => document.getElementById("previewModal").style.display = "none";
+    document.getElementById("closeUpload").onclick = closeUploadModal;
 
-  loadPhotos();
-}
-
-function renderAlbums(){
-
-  const albumsDiv =
-  document.getElementById("albums");
-
-  albumsDiv.innerHTML = "";
-
-  albums.forEach(album=>{
-
-    const div =
-    document.createElement("div");
-
-    div.className =
-    currentAlbum === album
-    ? "album active"
-    : "album";
-
-    div.innerText = "📁 " + album;
-
-    div.onclick = ()=>{
-
-      currentAlbum = album;
-
-      renderAlbums();
-
-      loadPhotos();
+    window.onclick = (e) => {
+      if(e.target.id === "previewModal") document.getElementById("previewModal").style.display = "none";
+      if(e.target.id === "uploadModal") closeUploadModal();
     };
 
-    albumsDiv.appendChild(div);
-  });
-}
+    // Navigation
+    document.getElementById("xyzBtn").addEventListener("click", () => {
+      document.getElementById("xyz-section").classList.add("active");
+      document.getElementById("xyzs-section").classList.remove("active");
+      document.getElementById("xyzBtn").classList.add("active");
+      document.getElementById("xyzsBtn").classList.remove("active");
+    });
 
-// =========================
-// UPLOAD
-// =========================
+    document.getElementById("xyzsBtn").addEventListener("click", () => {
+      document.getElementById("xyzs-section").classList.add("active");
+      document.getElementById("xyz-section").classList.remove("active");
+      document.getElementById("xyzsBtn").classList.add("active");
+      document.getElementById("xyzBtn").classList.remove("active");
+    });
 
-async function uploadPhotos(){
-
-  const files =
-  document.getElementById("fileInput").files;
-
-  if(!files.length){
-
-    alert("Select photos");
-
-    return;
-  }
-
-  for(const file of files){
-
-    const fileName =
-    `${currentAlbum}/${Date.now()}-${file.name}`;
-
-    const { error } =
-    await supabase.storage
-    .from("photos")
-    .upload(fileName, file);
-
-    if(error){
-
-      console.log(error);
-
-      alert(error.message);
-
-      return;
-    }
-  }
-
-  alert("Upload Complete ✅");
-
-  document.getElementById(
-    "fileInput"
-  ).value = "";
-
-  loadPhotos();
-}
-
-// =========================
-// LOAD PHOTOS
-// =========================
-
-async function loadPhotos(){
-
-  const gallery =
-  document.getElementById("gallery");
-
-  const empty =
-  document.getElementById("empty");
-
-  gallery.innerHTML = "";
-
-  const { data, error } =
-  await supabase.storage
-  .from("photos")
-  .list(currentAlbum);
-
-  if(error){
-
-    console.log(error);
-
-    return;
-  }
-
-  if(!data.length){
-
-    empty.style.display = "block";
-
-    return;
-  }
-
-  empty.style.display = "none";
-
-  data.forEach(photo=>{
-
-    const imageUrl =
-    `${supabaseUrl}/storage/v1/object/public/photos/${currentAlbum}/${photo.name}`;
-
-    const card =
-    document.createElement("div");
-
-    card.className = "card";
-
-    card.innerHTML = `
-
-      <img src="${imageUrl}">
-
-      <div class="card-body">
-
-        <div>
-          📸 ${photo.name.substring(0,20)}
-        </div>
-
-        <div class="card-buttons">
-
-          <a
-            href="${imageUrl}"
-            download
-            style="flex:1;"
-          >
-
-            <button class="download">
-              ⬇ Download
-            </button>
-
-          </a>
-
-          <button
-            class="delete"
-            onclick="deletePhoto('${photo.name}')"
-          >
-            🗑 Delete
-          </button>
-
-        </div>
-
-      </div>
-    `;
-
-    gallery.appendChild(card);
-  });
-}
-
-// =========================
-// DELETE
-// =========================
-
-async function deletePhoto(name){
-
-  const ok =
-  confirm("Delete photo ?");
-
-  if(!ok) return;
-
-  const { error } =
-  await supabase.storage
-  .from("photos")
-  .remove([
-    `${currentAlbum}/${name}`
-  ]);
-
-  if(error){
-
-    alert("Delete failed");
-
-    return;
-  }
-
-  loadPhotos();
-}
-
-loadPhotos();
-
-</script>
-
+    loadNFTs();
+  </script>
 </body>
 </html>
