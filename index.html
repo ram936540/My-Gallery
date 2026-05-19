@@ -41,6 +41,19 @@
     @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:12px; } }
     @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:15px; padding:20px; } }
 
+    /* Password Screen */
+    #passwordScreen {
+      position: fixed;
+      inset: 0;
+      background: #0a001f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .modal{
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
       z-index:1000; justify-content:center; align-items:center; padding:20px;
@@ -85,32 +98,46 @@
 </head>
 <body>
 
-  <header>
+  <!-- PASSWORD SCREEN -->
+  <div id="passwordScreen">
     <h1>MY GALLERY</h1>
-    <div class="header-buttons">
-      <button id="loginBtn">LOGIN</button>
-      <button id="uploadBtn" style="display:none;">UPLOAD NFT</button>
-    </div>
-  </header>
+    <h2>Enter Password to Access</h2>
+    <input type="password" id="passwordInput" placeholder="Enter Password" style="padding:15px; width:280px; font-size:1.1rem; border-radius:12px; border:none; background:#1a0033; color:white;"/>
+    <button onclick="checkPassword()">ENTER</button>
+    <p id="passwordError" style="color:#ff3366; margin-top:10px; display:none;">❌ Wrong Password</p>
+  </div>
 
-  <nav class="nav">
-    <button class="nav-btn active" id="xyzBtn">XYZ</button>
-    <button class="nav-btn" id="xyzsBtn">XYZS</button>
-  </nav>
+  <!-- MAIN CONTENT (Hidden initially) -->
+  <div id="mainContent" style="display:none;">
 
-  <section id="xyz-section" class="section active">
-    <div class="gallery" id="xyz-gallery"></div>
-  </section>
+    <header>
+      <h1>MY GALLERY</h1>
+      <div class="header-buttons">
+        <button id="loginBtn">LOGIN</button>
+        <button id="uploadBtn" style="display:none;">UPLOAD IMAGES</button>
+      </div>
+    </header>
 
-  <section id="xyzs-section" class="section">
-    <div class="gallery" id="xyzs-gallery"></div>
-  </section>
+    <nav class="nav">
+      <button class="nav-btn active" id="xyzBtn">XYZ</button>
+      <button class="nav-btn" id="xyzsBtn">XYZS</button>
+    </nav>
 
-  <!-- UPLOAD MODAL -->
+    <section id="xyz-section" class="section active">
+      <div class="gallery" id="xyz-gallery"></div>
+    </section>
+
+    <section id="xyzs-section" class="section">
+      <div class="gallery" id="xyzs-gallery"></div>
+    </section>
+
+  </div>
+
+  <!-- Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content">
       <span class="close" id="closeUpload">&times;</span>
-      <h2>✦ UPLOAD NEW NFT ✦</h2>
+      <h2>✦ UPLOAD NEW IMAGE ✦</h2>
       
       <input type="file" id="imageUpload" accept="image/*" multiple/>
       
@@ -126,18 +153,18 @@
     </div>
   </div>
 
-  <!-- PREVIEW MODAL -->
+  <!-- Preview Modal -->
   <div class="modal" id="previewModal">
     <div class="modal-content">
       <span class="close" id="closePreview">&times;</span>
-      <img id="modalImage" src="" alt="NFT Image">
+      <img id="modalImage" src="" alt="Photo">
     </div>
   </div>
 
-  <!-- LOADER -->
+  <!-- Loader -->
   <div class="loader-overlay" id="loader">
     <div class="loader"></div>
-    <div class="loader-text" id="loaderText">Uploading Photos...</div>
+    <div class="loader-text" id="loaderText">Uploading Images...</div>
     <div class="progress-text" id="progressText">0/0</div>
   </div>
 
@@ -150,6 +177,21 @@
     let xyzData = [];
     let xyzsData = [];
     let isLoggedIn = false;
+    const CORRECT_PASSWORD = "Krrish@123";
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      const errorMsg = document.getElementById("passwordError");
+
+      if (input === CORRECT_PASSWORD) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+        loadNFTs();
+      } else {
+        errorMsg.style.display = "block";
+        setTimeout(() => errorMsg.style.display = "none", 2500);
+      }
+    }
 
     async function loadNFTs(){
       const { data } = await supabaseClient.from("photos_data").select("*").order("id", { ascending: false });
@@ -158,9 +200,9 @@
       xyzsData = [];
 
       data.forEach(item => {
-        const nft = { id: item.id, img: item.img, section: item.section };
-        if (item.section === "xyz") xyzData.push(nft);
-        else if (item.section === "xyzs") xyzsData.push(nft);
+        const photo = { id: item.id, img: item.img, section: item.section };
+        if (item.section === "xyz") xyzData.push(photo);
+        else if (item.section === "xyzs") xyzsData.push(photo);
       });
 
       renderGallery("xyz-gallery", xyzData);
@@ -197,7 +239,6 @@
       });
     }
 
-    // ====================== DELETE ======================
     async function deletePhoto(id){
       if(!confirm("Delete this photo permanently?")) return;
 
@@ -225,7 +266,6 @@
       }
     }
 
-    // ====================== UPLOAD ======================
     async function uploadNFTs(){
       const files = document.getElementById("imageUpload").files;
       if(files.length === 0) return alert("Please select images");
@@ -262,7 +302,7 @@
       }
 
       document.getElementById("loaderText").innerText = "✅ Upload Complete!";
-      document.getElementById("progressText").innerText = `${uploadedCount} Photo(s) Uploaded Successfully`;
+      document.getElementById("progressText").innerText = `${uploadedCount} Image(s) Uploaded Successfully`;
 
       await loadNFTs();
 
@@ -276,7 +316,7 @@
       document.getElementById("uploadModal").style.display = "none";
     }
 
-    // Login
+    // Login (Admin)
     document.getElementById("loginBtn").addEventListener("click", () => {
       if(isLoggedIn){
         isLoggedIn = false;
@@ -321,7 +361,10 @@
       document.getElementById("xyzBtn").classList.remove("active");
     });
 
-    loadNFTs();
+    // Allow Enter key on password field
+    document.getElementById("passwordInput").addEventListener("keypress", function(e){
+      if(e.key === "Enter") checkPassword();
+    });
   </script>
 </body>
 </html>
