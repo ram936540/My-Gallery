@@ -137,7 +137,7 @@
   <!-- LOADER -->
   <div class="loader-overlay" id="loader">
     <div class="loader"></div>
-    <div class="loader-text" id="loaderText">Uploading NFTs...</div>
+    <div class="loader-text" id="loaderText">Uploading Photos...</div>
     <div class="progress-text" id="progressText">0/0</div>
   </div>
 
@@ -152,7 +152,7 @@
     let isLoggedIn = false;
 
     async function loadNFTs(){
-      const { data } = await supabaseClient.from("nfts_data").select("*").order("id", { ascending: false });
+      const { data } = await supabaseClient.from("photos_data").select("*").order("id", { ascending: false });
 
       xyzData = [];
       xyzsData = [];
@@ -172,20 +172,20 @@
       container.innerHTML = "";
 
       if(data.length === 0){
-        container.innerHTML = "<h2 style='text-align:center;width:100%;padding:40px;'>No NFTs Yet</h2>";
+        container.innerHTML = "<h2 style='text-align:center;width:100%;padding:40px;'>No Photos Yet</h2>";
         return;
       }
 
       data.forEach(item => {
         const card = document.createElement("div");
         card.className = "nft-card";
-        card.innerHTML = `<img src="${item.img}" alt="NFT">`;
+        card.innerHTML = `<img src="${item.img}" alt="Photo">`;
 
         if(isLoggedIn){
           const delBtn = document.createElement("button");
           delBtn.className = "delete-btn";
           delBtn.innerText = "DELETE";
-          delBtn.onclick = () => deleteNFT(item.id);
+          delBtn.onclick = () => deletePhoto(item.id);
           card.appendChild(delBtn);
         }
 
@@ -197,26 +197,27 @@
       });
     }
 
-    async function deleteNFT(id){
-      if(!confirm("Delete this NFT permanently from everywhere?")) return;
+    // ====================== DELETE ======================
+    async function deletePhoto(id){
+      if(!confirm("Delete this photo permanently?")) return;
 
       try {
-        const { data: nft } = await supabaseClient
-          .from("nfts_data")
+        const { data: photo } = await supabaseClient
+          .from("photos_data")
           .select("img")
           .eq("id", id)
           .single();
 
-        if(nft && nft.img){
-          const imagePath = nft.img.split("/nfts/")[1];
+        if(photo && photo.img){
+          const imagePath = photo.img.split("/photos/")[1];
           if(imagePath){
-            await supabaseClient.storage.from("nfts").remove([imagePath]);
+            await supabaseClient.storage.from("photos").remove([imagePath]);
           }
         }
 
-        await supabaseClient.from("nfts_data").delete().eq("id", id);
+        await supabaseClient.from("photos_data").delete().eq("id", id);
 
-        alert("NFT Deleted Successfully");
+        alert("Photo Deleted Successfully");
         await loadNFTs();
       } catch(err){
         console.error(err);
@@ -224,6 +225,7 @@
       }
     }
 
+    // ====================== UPLOAD ======================
     async function uploadNFTs(){
       const files = document.getElementById("imageUpload").files;
       if(files.length === 0) return alert("Please select images");
@@ -242,10 +244,10 @@
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${file.name.split('.').pop()}`;
           const path = `${section}/${fileName}`;
 
-          await supabaseClient.storage.from("nfts").upload(path, file, { upsert: true });
-          const { data: urlData } = supabaseClient.storage.from("nfts").getPublicUrl(path);
+          await supabaseClient.storage.from("photos").upload(path, file, { upsert: true });
+          const { data: urlData } = supabaseClient.storage.from("photos").getPublicUrl(path);
 
-          await supabaseClient.from("nfts_data").insert([{
+          await supabaseClient.from("photos_data").insert([{
             title: "Untitled",
             description: "",
             img: urlData.publicUrl,
@@ -260,7 +262,7 @@
       }
 
       document.getElementById("loaderText").innerText = "✅ Upload Complete!";
-      document.getElementById("progressText").innerText = `${uploadedCount} NFT(s) Uploaded Successfully`;
+      document.getElementById("progressText").innerText = `${uploadedCount} Photo(s) Uploaded Successfully`;
 
       await loadNFTs();
 
