@@ -18,7 +18,7 @@
     button{
       padding:12px 24px; background:transparent; border:2px solid #00ffff;
       color:#00ffff; border-radius:50px; cursor:pointer; font-weight:bold; transition:0.3s;
-      font-size: 1.4rem;   /* Emoji ke liye thoda bada kiya */
+      font-size: 1.5rem;
     }
     button:hover{ background:#00ffff; color:black; transform:scale(1.05); }
 
@@ -30,20 +30,30 @@
 
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+      scroll-behavior: smooth;
     }
     .nft-card{
       background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #440066;
       position:relative; cursor:pointer;
+      transition: transform 0.2s;
     }
+    .nft-card:hover{ transform: scale(1.03); }
+
     .nft-card img{
       width:100%; aspect-ratio:1/1; object-fit:cover;
+      display:block;
+      loading: lazy; /* Important */
     }
+
     .nft-card.selected::after{
       content: "✓"; position:absolute; top:10px; right:10px;
       background:#00ff88; color:black; width:32px; height:32px;
       border-radius:50%; display:flex; align-items:center; justify-content:center;
       font-weight:bold; border:3px solid white;
     }
+
+    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; padding:25px; } }
 
     .modal{
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
@@ -64,7 +74,7 @@
       cursor:pointer; color:#ff00ff;
     }
 
-    /* Tom & Jerry Style Loader */
+    /* Loader */
     .loader-overlay{
       position:fixed; inset:0; background:rgba(10,0,31,0.98);
       display:none; justify-content:center; align-items:center;
@@ -86,8 +96,6 @@
       font-weight:bold; 
       text-shadow:0 0 25px #ff00ff;
     }
-
-    .progress-text{ margin-top:10px; color:#fff; font-size:1.6rem; font-weight:bold; }
   </style>
 </head>
 <body>
@@ -160,7 +168,7 @@
     </div>
   </div>
 
-  <!-- Tom & Jerry Style Loader -->
+  <!-- Loader -->
   <div class="loader-overlay" id="loader">
     <div class="loader">
       <img src="https://i.imgur.com/8vJ8z3K.gif" width="180" alt="Tom and Jerry">
@@ -206,7 +214,13 @@
     }
 
     async function loadPhotos(sectionKey) {
-      const { data } = await supabaseClient.from("photos_data").select("*").eq("section", sectionKey).order("id", { ascending: false });
+      const { data } = await supabaseClient
+        .from("photos_data")
+        .select("*")
+        .eq("section", sectionKey)
+        .order("id", { ascending: false })
+        .limit(60);   // ← Performance ke liye limit lagaya
+
       const gallery = document.getElementById("currentGallery");
       gallery.innerHTML = "";
 
@@ -219,7 +233,8 @@
         const card = document.createElement("div");
         card.className = "nft-card";
         card.dataset.id = item.id;
-        card.innerHTML = `<img src="${item.img}" alt="Photo">`;
+        
+        card.innerHTML = `<img src="${item.img}" alt="Photo" loading="lazy">`;
 
         card.onclick = () => {
           if (deleteMode) toggleSelect(card, item.id);
@@ -232,6 +247,7 @@
       });
     }
 
+    // Baaki functions same rakh diye hain (toggleSelect, delete, upload, etc.)
     function toggleSelect(card, id) {
       if (selectedIds.has(id)) {
         selectedIds.delete(id);
@@ -310,7 +326,7 @@
         loader.style.display = "none";
         closeModal('uploadModal');
         loadPhotos(currentSectionKey);
-      }, 2000);
+      }, 1800);
     }
 
     function showEditModal() {
