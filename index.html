@@ -27,9 +27,6 @@
     .nav{ display:flex; justify-content:center; gap:8px; padding:15px; background:#140029; flex-wrap:wrap; overflow-x:auto; }
     .nav-btn.active{ background:#ff00ff; border-color:#ff00ff; color:black; }
 
-    .section{ display:none; }
-    .section.active{ display:block; }
-
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
     }
@@ -115,7 +112,7 @@
   <!-- Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal('uploadModal')" style="position:absolute;top:15px;right:25px;font-size:40px;cursor:pointer;color:#ff00ff;">×</span>
+      <span onclick="closeModal('uploadModal')" style="position:absolute;top:15px;right:25px;font-size:40px;cursor:pointer;color:#ff00ff;">×</span>
       <h2>✦ UPLOAD IMAGES ✦</h2>
       <input type="file" id="imageUpload" accept="image/*" multiple/>
       <select id="uploadSectionSelect" style="width:100%; padding:15px; margin:20px 0; background:#0f0022; border:2px solid #6600aa; border-radius:15px; color:white;"></select>
@@ -186,7 +183,7 @@
       gallery.innerHTML = "";
 
       if(!data || data.length === 0) {
-        gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#666;">No Photos in ${sections.find(s=>s.section_key===sectionKey)?.section_name || ''}</h2>`;
+        gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#666;">No Photos in this section</h2>`;
         return;
       }
 
@@ -198,9 +195,6 @@
 
         card.onclick = () => {
           if(deleteMode) toggleSelect(card, photo.id);
-          else {
-            document.getElementById("modalImage").src = photo.img; // Agar preview modal chahiye to add kar sakte hain
-          }
         };
         gallery.appendChild(card);
       });
@@ -224,7 +218,7 @@
     }
 
     async function deleteSelected() {
-      if(!confirm(`Delete ${selectedIds.size} photos permanently?`)) return;
+      if(!confirm(`Delete ${selectedIds.size} photos?`)) return;
       for(let id of selectedIds) {
         try {
           const { data: photo } = await supabase.from("photos_data").select("img").eq("id", id).single();
@@ -248,13 +242,15 @@
       loadPhotos(currentSectionKey);
     }
 
-    // Upload
     async function uploadImages() {
       const files = document.getElementById("imageUpload").files;
-      if(files.length === 0) return alert("Select images first");
+      if(files.length === 0) return alert("Please select images");
 
       const loader = document.getElementById("loader");
       loader.style.display = "flex";
+      document.getElementById("loaderText").innerText = "Uploading Images...";
+      document.getElementById("progressText").innerText = `0 / ${files.length}`;
+
       const sectionKey = document.getElementById("uploadSectionSelect").value;
       let count = 0;
 
@@ -282,7 +278,7 @@
         loader.style.display = "none";
         closeModal("uploadModal");
         loadPhotos(currentSectionKey);
-      }, 1500);
+      }, 1800);
     }
 
     function showEditModal() {
@@ -290,10 +286,10 @@
       list.innerHTML = "";
       sections.forEach(sec => {
         const div = document.createElement("div");
-        div.style.margin = "10px 0";
+        div.style.margin = "12px 0";
         div.innerHTML = `
-          <b>${sec.section_key}:</b> 
-          <input type="text" value="${sec.section_name}" data-key="${sec.section_key}" style="width:65%; padding:8px; border-radius:8px;">
+          <strong>${sec.section_key} :</strong> 
+          <input type="text" value="${sec.section_name}" data-key="${sec.section_key}" style="width:70%; padding:8px; border-radius:8px;">
         `;
         list.appendChild(div);
       });
@@ -309,7 +305,7 @@
           await supabase.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
         }
       }
-      alert("Section names saved successfully!");
+      alert("Section names updated successfully!");
       closeModal("editModal");
       loadSections();
     }
@@ -318,7 +314,6 @@
       document.getElementById(id).style.display = "none";
     }
 
-    // Initialize
     function checkPassword() {
       if(document.getElementById("passwordInput").value === PASSWORD) {
         document.getElementById("passwordScreen").style.display = "none";
