@@ -54,15 +54,51 @@
       gap: 20px;
     }
 
+    /* Attractive Upload Modal */
     .modal{
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
       z-index:1000; justify-content:center; align-items:center; padding:20px;
     }
 
     .modal-content{
-      background:#1a0033; width:100%; max-width:520px; border-radius:28px;
-      padding:35px 30px; position:relative; border:3px solid #ff00ff;
-      box-shadow:0 0 50px rgba(255, 0, 255, 0.6);
+      background: linear-gradient(145deg, #1a0033, #2a004d);
+      width:100%; max-width:480px; border-radius:28px;
+      padding:40px 30px; position:relative; border:3px solid #ff00ff;
+      box-shadow:0 0 60px rgba(255, 0, 255, 0.7);
+      text-align:center;
+    }
+
+    .modal-content h2{
+      color:#ff00ff;
+      margin-bottom:25px;
+      font-size:1.8rem;
+    }
+
+    .modal-content input[type="file"]{
+      width:100%;
+      padding:15px;
+      background:#0f0022;
+      border:2px dashed #00ffff;
+      border-radius:15px;
+      color:white;
+      margin:15px 0;
+    }
+
+    .modal-content select{
+      width:100%;
+      padding:14px;
+      background:#0f0022;
+      border:2px solid #440066;
+      border-radius:12px;
+      color:white;
+      margin:15px 0;
+    }
+
+    .modal-buttons{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin-top:30px;
     }
 
     .close{
@@ -70,11 +106,6 @@
       cursor:pointer; color:#ff00ff;
     }
     .close:hover{ color:#ff66ff; transform:rotate(90deg); }
-
-    .modal-content img{
-      width:100%; max-height:460px; object-fit:contain; border-radius:16px;
-      background:#0a001f; border:2px solid #440066;
-    }
 
     .delete-btn{
       margin-top:15px; width:100%; padding:12px; border:none;
@@ -103,18 +134,17 @@
     <h1>MY GALLERY</h1>
     <h2>Enter Password to Access</h2>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="padding:15px; width:280px; font-size:1.1rem; border-radius:12px; border:none; background:#1a0033; color:white;"/>
-    <button onclick="checkPassword()">ENTER</button>
+    <button onclick="checkPassword()">ENTER GALLERY</button>
     <p id="passwordError" style="color:#ff3366; margin-top:10px; display:none;">❌ Wrong Password</p>
   </div>
 
-  <!-- MAIN CONTENT (Hidden initially) -->
+  <!-- MAIN CONTENT -->
   <div id="mainContent" style="display:none;">
 
     <header>
       <h1>MY GALLERY</h1>
       <div class="header-buttons">
-        <button id="loginBtn">LOGIN</button>
-        <button id="uploadBtn" style="display:none;">UPLOAD IMAGES</button>
+        <button id="uploadBtn">UPLOAD IMAGES</button>
       </div>
     </header>
 
@@ -137,7 +167,7 @@
   <div class="modal" id="uploadModal">
     <div class="modal-content">
       <span class="close" id="closeUpload">&times;</span>
-      <h2>✦ UPLOAD NEW IMAGE ✦</h2>
+      <h2>✦ UPLOAD IMAGES ✦</h2>
       
       <input type="file" id="imageUpload" accept="image/*" multiple/>
       
@@ -146,9 +176,9 @@
         <option value="xyzs">XYZS</option>
       </select>
       
-      <div style="margin-top:30px; text-align:center;">
-        <button onclick="uploadNFTs()">UPLOAD NOW</button>
-        <button onclick="closeUploadModal()">CANCEL</button>
+      <div class="modal-buttons">
+        <button onclick="uploadNFTs()" style="background:#00ff88; color:black; border:none; padding:14px 32px;">UPLOAD NOW</button>
+        <button onclick="closeUploadModal()" style="background:transparent; border:2px solid #ff00ff; padding:14px 32px;">CANCEL</button>
       </div>
     </div>
   </div>
@@ -176,7 +206,6 @@
 
     let xyzData = [];
     let xyzsData = [];
-    let isLoggedIn = false;
     const CORRECT_PASSWORD = "Krrish@123";
 
     function checkPassword() {
@@ -223,13 +252,12 @@
         card.className = "nft-card";
         card.innerHTML = `<img src="${item.img}" alt="Photo">`;
 
-        if(isLoggedIn){
-          const delBtn = document.createElement("button");
-          delBtn.className = "delete-btn";
-          delBtn.innerText = "DELETE";
-          delBtn.onclick = () => deletePhoto(item.id);
-          card.appendChild(delBtn);
-        }
+        // Direct Delete Button (No extra login needed)
+        const delBtn = document.createElement("button");
+        delBtn.className = "delete-btn";
+        delBtn.innerText = "DELETE";
+        delBtn.onclick = () => deletePhoto(item.id);
+        card.appendChild(delBtn);
 
         card.querySelector("img").onclick = () => {
           document.getElementById("modalImage").src = item.img;
@@ -243,21 +271,14 @@
       if(!confirm("Delete this photo permanently?")) return;
 
       try {
-        const { data: photo } = await supabaseClient
-          .from("photos_data")
-          .select("img")
-          .eq("id", id)
-          .single();
+        const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
 
         if(photo && photo.img){
           const imagePath = photo.img.split("/photos/")[1];
-          if(imagePath){
-            await supabaseClient.storage.from("photos").remove([imagePath]);
-          }
+          if(imagePath) await supabaseClient.storage.from("photos").remove([imagePath]);
         }
 
         await supabaseClient.from("photos_data").delete().eq("id", id);
-
         alert("Photo Deleted Successfully");
         await loadNFTs();
       } catch(err){
@@ -271,11 +292,10 @@
       if(files.length === 0) return alert("Please select images");
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "Uploading...";
+      document.getElementById("loaderText").innerText = "Uploading Images...";
       document.getElementById("progressText").innerText = `0/${files.length}`;
 
       const section = document.getElementById("nftSection").value;
-
       let uploadedCount = 0;
 
       for(let i = 0; i < files.length; i++){
@@ -316,27 +336,9 @@
       document.getElementById("uploadModal").style.display = "none";
     }
 
-    // Login (Admin)
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      if(isLoggedIn){
-        isLoggedIn = false;
-        document.getElementById("loginBtn").innerText = "LOGIN";
-        document.getElementById("uploadBtn").style.display = "none";
-        loadNFTs();
-        alert("Logged Out");
-        return;
-      }
-      const secret = prompt("Enter Secret Word");
-      if(secret === "tmkc" || secret === "Tmkc"){
-        isLoggedIn = true;
-        document.getElementById("loginBtn").innerText = "LOGOUT";
-        document.getElementById("uploadBtn").style.display = "block";
-        loadNFTs();
-        alert("Login Successful");
-      } else alert("Wrong Secret Word");
+    document.getElementById("uploadBtn").addEventListener("click", () => {
+      document.getElementById("uploadModal").style.display = "flex";
     });
-
-    document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("uploadModal").style.display = "flex");
 
     document.getElementById("closePreview").onclick = () => document.getElementById("previewModal").style.display = "none";
     document.getElementById("closeUpload").onclick = closeUploadModal;
@@ -361,8 +363,7 @@
       document.getElementById("xyzBtn").classList.remove("active");
     });
 
-    // Allow Enter key on password field
-    document.getElementById("passwordInput").addEventListener("keypress", function(e){
+    document.getElementById("passwordInput").addEventListener("keypress", (e) => {
       if(e.key === "Enter") checkPassword();
     });
   </script>
