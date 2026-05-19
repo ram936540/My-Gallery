@@ -14,13 +14,16 @@
     header{ text-align:center; padding:60px 20px 20px; position:relative; }
     h1{ font-size:5rem; color:#ff00ff; text-shadow:0 0 25px #ff00ff; margin-bottom:15px; }
 
-    .header-buttons{ position:absolute; top:20px; right:20px; display:flex; gap:12px; }
+    .header-buttons{ position:absolute; top:20px; right:20px; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
 
     button{
-      padding:12px 28px; background:transparent; border:2px solid #00ffff;
+      padding:12px 24px; background:transparent; border:2px solid #00ffff;
       color:#00ffff; border-radius:50px; cursor:pointer; font-weight:bold; transition:0.3s;
     }
     button:hover{ background:#00ffff; color:black; transform:scale(1.05); }
+
+    .delete-mode-btn{ border-color:#ff3366; color:#ff3366; }
+    .delete-mode-btn.active{ background:#ff3366; color:white; }
 
     .nav{ display:flex; justify-content:center; gap:20px; padding:20px; background:#140029; flex-wrap:wrap; }
     .nav-btn.active{ background:#ff00ff; border-color:#ff00ff; color:black; }
@@ -33,9 +36,17 @@
     }
     .nft-card{
       background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #440066;
+      position:relative; cursor:pointer;
     }
     .nft-card img{
-      width:100%; aspect-ratio:1/1; object-fit:cover; display:block; cursor:pointer;
+      width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
+    }
+    .nft-card.selected::after{
+      content: "✓";
+      position:absolute; top:10px; right:10px;
+      background:#00ff88; color:black; width:30px; height:30px;
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-weight:bold; border:2px solid white;
     }
 
     @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:12px; } }
@@ -43,18 +54,11 @@
 
     /* Password Screen */
     #passwordScreen {
-      position: fixed;
-      inset: 0;
-      background: #0a001f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      flex-direction: column;
-      gap: 20px;
+      position: fixed; inset: 0; background: #0a001f;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; flex-direction: column; gap: 20px;
     }
 
-    /* Attractive Upload Modal */
     .modal{
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
       z-index:1000; justify-content:center; align-items:center; padding:20px;
@@ -68,48 +72,15 @@
       text-align:center;
     }
 
-    .modal-content h2{
-      color:#ff00ff;
-      margin-bottom:25px;
-      font-size:1.8rem;
-    }
-
-    .modal-content input[type="file"]{
-      width:100%;
-      padding:15px;
-      background:#0f0022;
-      border:2px dashed #00ffff;
-      border-radius:15px;
-      color:white;
-      margin:15px 0;
-    }
-
-    .modal-content select{
-      width:100%;
-      padding:14px;
-      background:#0f0022;
-      border:2px solid #440066;
-      border-radius:12px;
-      color:white;
-      margin:15px 0;
-    }
-
-    .modal-buttons{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      margin-top:30px;
-    }
-
     .close{
       position:absolute; top:15px; right:25px; font-size:42px;
       cursor:pointer; color:#ff00ff;
     }
-    .close:hover{ color:#ff66ff; transform:rotate(90deg); }
 
     .delete-btn{
-      margin-top:15px; width:100%; padding:12px; border:none;
+      margin-top:15px; width:100%; padding:14px; border:none;
       border-radius:10px; background:#ff0033; color:white; cursor:pointer;
+      font-weight:bold;
     }
 
     .loader-overlay{
@@ -145,6 +116,7 @@
       <h1>MY GALLERY</h1>
       <div class="header-buttons">
         <button id="uploadBtn">UPLOAD IMAGES</button>
+        <button id="deleteModeBtn" class="delete-mode-btn">DELETE MODE</button>
       </div>
     </header>
 
@@ -161,6 +133,14 @@
       <div class="gallery" id="xyzs-gallery"></div>
     </section>
 
+    <!-- Delete Selected Bar -->
+    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); 
+         background:#ff0033; padding:12px 25px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 20px rgba(255,0,51,0.6);">
+      <span id="selectedCount">0 Selected</span>
+      <button onclick="deleteSelected()" style="margin-left:20px; background:white; color:#ff0033; border:none; padding:8px 20px; border-radius:30px;">DELETE SELECTED</button>
+      <button onclick="exitDeleteMode()" style="margin-left:10px; background:transparent; border:2px solid white; color:white; padding:8px 18px; border-radius:30px;">Cancel</button>
+    </div>
+
   </div>
 
   <!-- Upload Modal -->
@@ -176,9 +156,9 @@
         <option value="xyzs">XYZS</option>
       </select>
       
-      <div class="modal-buttons">
-        <button onclick="uploadNFTs()" style="background:#00ff88; color:black; border:none; padding:14px 32px;">UPLOAD NOW</button>
-        <button onclick="closeUploadModal()" style="background:transparent; border:2px solid #ff00ff; padding:14px 32px;">CANCEL</button>
+      <div style="margin-top:30px; display:flex; gap:12px; justify-content:center;">
+        <button onclick="uploadNFTs()" style="background:#00ff88; color:black; border:none;">UPLOAD NOW</button>
+        <button onclick="closeUploadModal()">CANCEL</button>
       </div>
     </div>
   </div>
@@ -206,33 +186,27 @@
 
     let xyzData = [];
     let xyzsData = [];
+    let deleteMode = false;
+    let selectedIds = new Set();
     const CORRECT_PASSWORD = "Krrish@123";
 
     function checkPassword() {
       const input = document.getElementById("passwordInput").value;
-      const errorMsg = document.getElementById("passwordError");
-
       if (input === CORRECT_PASSWORD) {
         document.getElementById("passwordScreen").style.display = "none";
         document.getElementById("mainContent").style.display = "block";
         loadNFTs();
       } else {
-        errorMsg.style.display = "block";
-        setTimeout(() => errorMsg.style.display = "none", 2500);
+        document.getElementById("passwordError").style.display = "block";
+        setTimeout(() => document.getElementById("passwordError").style.display = "none", 2500);
       }
     }
 
     async function loadNFTs(){
       const { data } = await supabaseClient.from("photos_data").select("*").order("id", { ascending: false });
 
-      xyzData = [];
-      xyzsData = [];
-
-      data.forEach(item => {
-        const photo = { id: item.id, img: item.img, section: item.section };
-        if (item.section === "xyz") xyzData.push(photo);
-        else if (item.section === "xyzs") xyzsData.push(photo);
-      });
+      xyzData = data.filter(item => item.section === "xyz");
+      xyzsData = data.filter(item => item.section === "xyzs");
 
       renderGallery("xyz-gallery", xyzData);
       renderGallery("xyzs-gallery", xyzsData);
@@ -243,58 +217,99 @@
       container.innerHTML = "";
 
       if(data.length === 0){
-        container.innerHTML = "<h2 style='text-align:center;width:100%;padding:40px;'>No Photos Yet</h2>";
+        container.innerHTML = "<h2 style='text-align:center;width:100%;padding:40px;color:#888;'>No Photos Yet</h2>";
         return;
       }
 
       data.forEach(item => {
         const card = document.createElement("div");
         card.className = "nft-card";
+        card.dataset.id = item.id;
+        
         card.innerHTML = `<img src="${item.img}" alt="Photo">`;
 
-        // Direct Delete Button (No extra login needed)
-        const delBtn = document.createElement("button");
-        delBtn.className = "delete-btn";
-        delBtn.innerText = "DELETE";
-        delBtn.onclick = () => deletePhoto(item.id);
-        card.appendChild(delBtn);
-
-        card.querySelector("img").onclick = () => {
-          document.getElementById("modalImage").src = item.img;
-          document.getElementById("previewModal").style.display = "flex";
+        card.onclick = () => {
+          if(deleteMode){
+            toggleSelect(card, item.id);
+          } else {
+            document.getElementById("modalImage").src = item.img;
+            document.getElementById("previewModal").style.display = "flex";
+          }
         };
+
         container.appendChild(card);
       });
     }
 
-    async function deletePhoto(id){
-      if(!confirm("Delete this photo permanently?")) return;
+    function toggleSelect(card, id){
+      if(selectedIds.has(id)){
+        selectedIds.delete(id);
+        card.classList.remove("selected");
+      } else {
+        selectedIds.add(id);
+        card.classList.add("selected");
+      }
+      updateDeleteBar();
+    }
+
+    function updateDeleteBar(){
+      const count = selectedIds.size;
+      document.getElementById("selectedCount").innerText = `${count} Selected`;
+      document.getElementById("deleteBar").style.display = count > 0 ? "flex" : "none";
+    }
+
+    async function deleteSelected(){
+      if(selectedIds.size === 0) return;
+      if(!confirm(`Delete ${selectedIds.size} selected photos permanently?`)) return;
 
       try {
-        const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
-
-        if(photo && photo.img){
-          const imagePath = photo.img.split("/photos/")[1];
-          if(imagePath) await supabaseClient.storage.from("photos").remove([imagePath]);
+        for(let id of selectedIds){
+          const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
+          if(photo && photo.img){
+            const path = photo.img.split("/photos/")[1];
+            if(path) await supabaseClient.storage.from("photos").remove([path]);
+          }
+          await supabaseClient.from("photos_data").delete().eq("id", id);
         }
 
-        await supabaseClient.from("photos_data").delete().eq("id", id);
-        alert("Photo Deleted Successfully");
+        alert("Selected Photos Deleted Successfully");
+        selectedIds.clear();
+        exitDeleteMode();
         await loadNFTs();
       } catch(err){
         console.error(err);
-        alert("Delete Failed");
+        alert("Some photos could not be deleted");
       }
     }
+
+    function exitDeleteMode(){
+      deleteMode = false;
+      selectedIds.clear();
+      document.getElementById("deleteModeBtn").classList.remove("active");
+      document.getElementById("deleteBar").style.display = "none";
+      loadNFTs(); // Refresh to remove selections
+    }
+
+    // Toggle Delete Mode
+    document.getElementById("deleteModeBtn").addEventListener("click", () => {
+      deleteMode = !deleteMode;
+      document.getElementById("deleteModeBtn").classList.toggle("active", deleteMode);
+      
+      if(!deleteMode){
+        exitDeleteMode();
+      }
+    });
+
+    // Upload Functions (same as before)
+    document.getElementById("uploadBtn").addEventListener("click", () => {
+      document.getElementById("uploadModal").style.display = "flex";
+    });
 
     async function uploadNFTs(){
       const files = document.getElementById("imageUpload").files;
       if(files.length === 0) return alert("Please select images");
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "Uploading Images...";
-      document.getElementById("progressText").innerText = `0/${files.length}`;
-
       const section = document.getElementById("nftSection").value;
       let uploadedCount = 0;
 
@@ -315,30 +330,22 @@
           }]);
 
           uploadedCount++;
-          document.getElementById("progressText").innerText = `${uploadedCount}/${files.length}`;
-        } catch(err){
-          console.log(err);
-        }
+        } catch(err){ console.log(err); }
       }
 
       document.getElementById("loaderText").innerText = "✅ Upload Complete!";
-      document.getElementById("progressText").innerText = `${uploadedCount} Image(s) Uploaded Successfully`;
-
-      await loadNFTs();
-
+      document.getElementById("progressText").innerText = `${uploadedCount} Image(s) Uploaded`;
+      
       setTimeout(() => {
         document.getElementById("loader").style.display = "none";
         closeUploadModal();
-      }, 1800);
+        loadNFTs();
+      }, 1500);
     }
 
     function closeUploadModal(){
       document.getElementById("uploadModal").style.display = "none";
     }
-
-    document.getElementById("uploadBtn").addEventListener("click", () => {
-      document.getElementById("uploadModal").style.display = "flex";
-    });
 
     document.getElementById("closePreview").onclick = () => document.getElementById("previewModal").style.display = "none";
     document.getElementById("closeUpload").onclick = closeUploadModal;
@@ -354,6 +361,7 @@
       document.getElementById("xyzs-section").classList.remove("active");
       document.getElementById("xyzBtn").classList.add("active");
       document.getElementById("xyzsBtn").classList.remove("active");
+      if(deleteMode) exitDeleteMode();
     });
 
     document.getElementById("xyzsBtn").addEventListener("click", () => {
@@ -361,6 +369,7 @@
       document.getElementById("xyz-section").classList.remove("active");
       document.getElementById("xyzsBtn").classList.add("active");
       document.getElementById("xyzBtn").classList.remove("active");
+      if(deleteMode) exitDeleteMode();
     });
 
     document.getElementById("passwordInput").addEventListener("keypress", (e) => {
