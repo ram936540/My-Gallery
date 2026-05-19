@@ -4,17 +4,16 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MY GALLERY</title>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
     body{ background:#0a001f; color:white; font-family:Arial,sans-serif; overflow-x:hidden; }
 
-    header{ text-align:center; padding:60px 20px 20px; position:relative; }
-    h1{ font-size:5rem; color:#ff00ff; text-shadow:0 0 25px #ff00ff; margin-bottom:15px; }
+    header{ text-align:center; padding:50px 20px 20px; position:relative; }
+    h1{ font-size:4.8rem; color:#ff00ff; text-shadow:0 0 25px #ff00ff; }
 
-    .header-buttons{ position:absolute; top:20px; right:20px; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .header-buttons{ position:absolute; top:20px; right:20px; display:flex; gap:10px; flex-wrap:wrap; }
 
     button{
       padding:12px 24px; background:transparent; border:2px solid #00ffff;
@@ -25,7 +24,7 @@
     .delete-mode-btn{ border-color:#ff3366; color:#ff3366; }
     .delete-mode-btn.active{ background:#ff3366; color:white; }
 
-    .nav{ display:flex; justify-content:center; gap:20px; padding:20px; background:#140029; flex-wrap:wrap; }
+    .nav{ display:flex; justify-content:center; gap:8px; padding:15px; background:#140029; flex-wrap:wrap; overflow-x:auto; }
     .nav-btn.active{ background:#ff00ff; border-color:#ff00ff; color:black; }
 
     .section{ display:none; }
@@ -34,90 +33,34 @@
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
     }
+    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; } }
+
     .nft-card{
       background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #440066;
       position:relative; cursor:pointer;
     }
     .nft-card img{
-      width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
+      width:100%; aspect-ratio:1/1; object-fit:cover;
     }
     .nft-card.selected::after{
-      content: "✓";
-      position:absolute; top:10px; right:10px;
+      content:"✓"; position:absolute; top:10px; right:10px;
       background:#00ff88; color:black; width:32px; height:32px;
       border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-weight:bold; border:3px solid white; font-size:18px;
+      font-weight:bold; border:3px solid white;
     }
 
-    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
-    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; padding:25px; } }
-
-    /* Password Screen */
-    #passwordScreen {
-      position: fixed; inset: 0; background: #0a001f;
-      display: flex; justify-content: center; align-items: center;
-      z-index: 9999; flex-direction: column; gap: 25px;
-    }
-
-    /* Stylish Upload Modal */
     .modal{
       display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95);
       z-index:1000; justify-content:center; align-items:center; padding:20px;
     }
-
     .modal-content{
       background: linear-gradient(135deg, #1f003d, #2e0055);
       width:100%; max-width:500px; border-radius:30px;
-      padding:45px 35px; position:relative; 
-      border:4px solid #ff00ff;
-      box-shadow:0 0 80px rgba(255, 0, 255, 0.8);
-      text-align:center;
+      padding:45px 35px; border:4px solid #ff00ff;
+      box-shadow:0 0 80px rgba(255,0,255,0.8); text-align:center;
     }
 
-    .modal-content h2{
-      font-size:2rem;
-      color:#ff00ff;
-      margin-bottom:30px;
-      text-shadow:0 0 15px #ff00ff;
-    }
-
-    .modal-content input[type="file"]{
-      width:100%;
-      padding:20px;
-      background:#0f0022;
-      border:3px dashed #00ffff;
-      border-radius:20px;
-      color:#00ffff;
-      font-size:1.1rem;
-      margin:20px 0;
-      cursor:pointer;
-    }
-
-    .modal-content select{
-      width:100%;
-      padding:16px;
-      background:#0f0022;
-      border:2px solid #6600aa;
-      border-radius:15px;
-      color:white;
-      font-size:1.1rem;
-      margin:15px 0;
-    }
-
-    .modal-buttons{
-      display:flex;
-      gap:15px;
-      justify-content:center;
-      margin-top:35px;
-    }
-
-    .close{
-      position:absolute; top:15px; right:25px; font-size:42px;
-      cursor:pointer; color:#ff00ff;
-    }
-    .close:hover{ color:#ff66ff; transform:rotate(90deg); }
-
-    /* Loader */
     .loader-overlay{
       position:fixed; inset:0; background:rgba(0,0,0,0.96);
       display:none; justify-content:center; align-items:center;
@@ -125,19 +68,12 @@
     }
     .loader{
       width:90px; height:90px; border:8px solid #222;
-      border-top:8px solid #00ffff; border-radius:50%; 
-      animation:spin 1s linear infinite;
+      border-top:8px solid #00ffff; border-radius:50%; animation:spin 1s linear infinite;
     }
     @keyframes spin{ 100%{ transform:rotate(360deg); } }
 
     .loader-text{ margin-top:30px; color:#00ffff; font-size:1.8rem; font-weight:bold; }
     .progress-text{ margin-top:15px; color:#fff; font-size:1.5rem; font-weight:bold; }
-
-    .delete-btn{
-      margin-top:15px; width:100%; padding:14px; border:none;
-      border-radius:10px; background:#ff0033; color:white; cursor:pointer;
-      font-weight:bold;
-    }
   </style>
 </head>
 <body>
@@ -148,67 +84,56 @@
     <h2>Enter Password to Access</h2>
     <input type="password" id="passwordInput" placeholder="Enter Password" style="padding:15px; width:300px; font-size:1.2rem; border-radius:12px; border:none; background:#1a0033; color:white;"/>
     <button onclick="checkPassword()" style="padding:14px 40px; font-size:1.1rem;">ENTER GALLERY</button>
-    <p id="passwordError" style="color:#ff3366; margin-top:10px; display:none;">❌ Wrong Password</p>
+    <p id="passwordError" style="color:#ff3366; margin-top:15px; display:none;">❌ Wrong Password</p>
   </div>
 
   <!-- MAIN CONTENT -->
   <div id="mainContent" style="display:none;">
-
     <header>
       <h1>MY GALLERY</h1>
       <div class="header-buttons">
         <button id="uploadBtn">UPLOAD IMAGES</button>
         <button id="deleteModeBtn" class="delete-mode-btn">DELETE MODE</button>
+        <button id="editSectionsBtn">EDIT SECTIONS</button>
       </div>
     </header>
 
-    <nav class="nav">
-      <button class="nav-btn active" id="xyzBtn">XYZ</button>
-      <button class="nav-btn" id="xyzsBtn">XYZS</button>
-    </nav>
+    <nav class="nav" id="sectionsNav"></nav>
 
-    <section id="xyz-section" class="section active">
-      <div class="gallery" id="xyz-gallery"></div>
-    </section>
-
-    <section id="xyzs-section" class="section">
-      <div class="gallery" id="xyzs-gallery"></div>
+    <section id="currentSection" class="section active">
+      <div class="gallery" id="currentGallery"></div>
     </section>
 
     <!-- Delete Bar -->
-    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); 
-         background:#ff0033; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(255,0,51,0.7); z-index:10000;">
+    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#ff0033; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(255,0,51,0.7); z-index:10000;">
       <span id="selectedCount">0 Selected</span>
-      <button onclick="deleteSelected()" style="margin-left:25px; background:white; color:#ff0033; border:none; padding:10px 24px; border-radius:30px; font-weight:bold;">DELETE SELECTED</button>
+      <button onclick="deleteSelected()" style="margin-left:25px; background:white; color:#ff0033; border:none; padding:10px 24px; border-radius:30px;">DELETE SELECTED</button>
       <button onclick="exitDeleteMode()" style="margin-left:12px; background:transparent; border:2px solid white; color:white; padding:10px 20px; border-radius:30px;">Cancel</button>
     </div>
   </div>
 
-  <!-- Stylish Upload Modal -->
+  <!-- Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content">
-      <span class="close" id="closeUpload">&times;</span>
+      <span class="close" onclick="closeModal('uploadModal')" style="position:absolute;top:15px;right:25px;font-size:40px;cursor:pointer;color:#ff00ff;">×</span>
       <h2>✦ UPLOAD IMAGES ✦</h2>
-      
       <input type="file" id="imageUpload" accept="image/*" multiple/>
-      
-      <select id="nftSection">
-        <option value="xyz">XYZ Section</option>
-        <option value="xyzs">XYZS Section</option>
-      </select>
-      
-      <div class="modal-buttons">
-        <button onclick="uploadNFTs()" style="background:#00ff88; color:black; border:none; padding:16px 40px; font-size:1.1rem;">UPLOAD NOW</button>
-        <button onclick="closeUploadModal()" style="background:transparent; border:2px solid #ff00ff; padding:16px 35px;">CANCEL</button>
+      <select id="uploadSectionSelect" style="width:100%; padding:15px; margin:20px 0; background:#0f0022; border:2px solid #6600aa; border-radius:15px; color:white;"></select>
+      <div style="margin-top:25px;">
+        <button onclick="uploadImages()" style="background:#00ff88; color:black; border:none; padding:14px 40px;">UPLOAD NOW</button>
+        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #ff00ff; padding:14px 35px;">CANCEL</button>
       </div>
     </div>
   </div>
 
-  <!-- Preview Modal -->
-  <div class="modal" id="previewModal">
+  <!-- Edit Sections Modal -->
+  <div class="modal" id="editModal">
     <div class="modal-content">
-      <span class="close" id="closePreview">&times;</span>
-      <img id="modalImage" src="" alt="Photo">
+      <h2>Edit Section Names</h2>
+      <div id="sectionsList" style="max-height:400px; overflow-y:auto; text-align:left;"></div>
+      <br>
+      <button onclick="saveSectionNames()" style="background:#00ff88; color:black; padding:12px 30px;">SAVE CHANGES</button>
+      <button onclick="closeModal('editModal')" style="margin-left:10px;">CLOSE</button>
     </div>
   </div>
 
@@ -223,56 +148,66 @@
     const SUPABASE_URL = "https://mqhckgezaxswrroqwnvt.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGNrZ2V6YXhzd3Jyb3F3bnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjgzNzUsImV4cCI6MjA5NDcwNDM3NX0.6vtCwg6Wu0r4RSD6yAfCh4wP7aovhoEiBYpCRYMIe6s";
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const PASSWORD = "Krrish@123";
 
-    let xyzData = [], xyzsData = [];
+    let sections = [];
+    let currentSectionKey = "sec1";
     let deleteMode = false;
     let selectedIds = new Set();
-    const CORRECT_PASSWORD = "Krrish@123";
 
-    function checkPassword() {
-      if(document.getElementById("passwordInput").value === CORRECT_PASSWORD) {
-        document.getElementById("passwordScreen").style.display = "none";
-        document.getElementById("mainContent").style.display = "block";
-        loadNFTs();
-      } else {
-        document.getElementById("passwordError").style.display = "block";
-        setTimeout(() => document.getElementById("passwordError").style.display = "none", 2500);
-      }
+    async function loadSections() {
+      const { data } = await supabase.from("gallery_sections").select("*").order("position");
+      sections = data || [];
+      renderNavigation();
+      loadPhotos(currentSectionKey);
     }
 
-    async function loadNFTs(){
-      const { data } = await supabaseClient.from("photos_data").select("*").order("id", { ascending: false });
-      xyzData = data.filter(item => item.section === "xyz");
-      xyzsData = data.filter(item => item.section === "xyzs");
-
-      renderGallery("xyz-gallery", xyzData);
-      renderGallery("xyzs-gallery", xyzsData);
-    }
-
-    function renderGallery(containerId, data){
-      const container = document.getElementById(containerId);
-      container.innerHTML = data.length === 0 ? "<h2 style='text-align:center;width:100%;padding:60px;color:#777;'>No Photos Yet</h2>" : "";
-
-      data.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "nft-card";
-        card.dataset.id = item.id;
-        card.innerHTML = `<img src="${item.img}" alt="Photo">`;
-
-        card.onclick = () => {
-          if(deleteMode) toggleSelect(card, item.id);
-          else {
-            document.getElementById("modalImage").src = item.img;
-            document.getElementById("previewModal").style.display = "flex";
-          }
+    function renderNavigation() {
+      const nav = document.getElementById("sectionsNav");
+      nav.innerHTML = "";
+      sections.forEach(sec => {
+        const btn = document.createElement("button");
+        btn.className = "nav-btn";
+        btn.textContent = sec.section_name;
+        if(sec.section_key === currentSectionKey) btn.classList.add("active");
+        btn.onclick = () => {
+          currentSectionKey = sec.section_key;
+          renderNavigation();
+          loadPhotos(currentSectionKey);
         };
-        container.appendChild(card);
+        nav.appendChild(btn);
       });
     }
 
-    function toggleSelect(card, id){
-      if(selectedIds.has(id)){
+    async function loadPhotos(sectionKey) {
+      const { data } = await supabase.from("photos_data").select("*").eq("section", sectionKey).order("id", { ascending: false });
+      const gallery = document.getElementById("currentGallery");
+      gallery.innerHTML = "";
+
+      if(!data || data.length === 0) {
+        gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#666;">No Photos in ${sections.find(s=>s.section_key===sectionKey)?.section_name || ''}</h2>`;
+        return;
+      }
+
+      data.forEach(photo => {
+        const card = document.createElement("div");
+        card.className = "nft-card";
+        card.dataset.id = photo.id;
+        card.innerHTML = `<img src="${photo.img}" alt="Photo">`;
+
+        card.onclick = () => {
+          if(deleteMode) toggleSelect(card, photo.id);
+          else {
+            document.getElementById("modalImage").src = photo.img; // Agar preview modal chahiye to add kar sakte hain
+          }
+        };
+        gallery.appendChild(card);
+      });
+    }
+
+    function toggleSelect(card, id) {
+      if(selectedIds.has(id)) {
         selectedIds.delete(id);
         card.classList.remove("selected");
       } else {
@@ -282,125 +217,142 @@
       updateDeleteBar();
     }
 
-    function updateDeleteBar(){
+    function updateDeleteBar() {
       const count = selectedIds.size;
       document.getElementById("selectedCount").innerText = `${count} Selected`;
       document.getElementById("deleteBar").style.display = count > 0 ? "flex" : "none";
     }
 
-    async function deleteSelected(){
-      if(!confirm(`Delete ${selectedIds.size} photos?`)) return;
-      // ... (delete logic same)
-      for(let id of selectedIds){
-        try{
-          const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
-          if(photo?.img){
+    async function deleteSelected() {
+      if(!confirm(`Delete ${selectedIds.size} photos permanently?`)) return;
+      for(let id of selectedIds) {
+        try {
+          const { data: photo } = await supabase.from("photos_data").select("img").eq("id", id).single();
+          if(photo?.img) {
             const path = photo.img.split("/photos/")[1];
-            if(path) await supabaseClient.storage.from("photos").remove([path]);
+            if(path) await supabase.storage.from("photos").remove([path]);
           }
-          await supabaseClient.from("photos_data").delete().eq("id", id);
-        } catch(e){}
+          await supabase.from("photos_data").delete().eq("id", id);
+        } catch(e) {}
       }
       alert("Deleted Successfully");
       exitDeleteMode();
-      loadNFTs();
+      loadPhotos(currentSectionKey);
     }
 
-    function exitDeleteMode(){
+    function exitDeleteMode() {
       deleteMode = false;
       selectedIds.clear();
       document.getElementById("deleteModeBtn").classList.remove("active");
       document.getElementById("deleteBar").style.display = "none";
-      loadNFTs();
+      loadPhotos(currentSectionKey);
     }
 
-    // Upload Function with Fixed Progress
-    async function uploadNFTs(){
+    // Upload
+    async function uploadImages() {
       const files = document.getElementById("imageUpload").files;
-      if(files.length === 0) return alert("Please select images");
+      if(files.length === 0) return alert("Select images first");
 
       const loader = document.getElementById("loader");
-      const loaderText = document.getElementById("loaderText");
-      const progressText = document.getElementById("progressText");
-
       loader.style.display = "flex";
-      loaderText.innerText = "Uploading Images...";
-      progressText.innerText = `0 / ${files.length}`;
+      const sectionKey = document.getElementById("uploadSectionSelect").value;
+      let count = 0;
 
-      const section = document.getElementById("nftSection").value;
-      let uploadedCount = 0;
-
-      for(let i = 0; i < files.length; i++){
-        try{
-          const file = files[i];
+      for(let file of files) {
+        try {
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${file.name.split('.').pop()}`;
-          const path = `${section}/${fileName}`;
+          const path = `${sectionKey}/${fileName}`;
 
-          await supabaseClient.storage.from("photos").upload(path, file, { upsert: true });
-          const { data: urlData } = supabaseClient.storage.from("photos").getPublicUrl(path);
+          await supabase.storage.from("photos").upload(path, file, { upsert: true });
+          const { data: urlData } = supabase.storage.from("photos").getPublicUrl(path);
 
-          await supabaseClient.from("photos_data").insert([{
+          await supabase.from("photos_data").insert({
             title: "Untitled",
             description: "",
             img: urlData.publicUrl,
-            section: section
-          }]);
-
-          uploadedCount++;
-          progressText.innerText = `${uploadedCount} / ${files.length}`;
-        } catch(err){
-          console.log(err);
-        }
+            section: sectionKey
+          });
+          count++;
+          document.getElementById("progressText").innerText = `${count} / ${files.length}`;
+        } catch(err) { console.log(err); }
       }
 
-      loaderText.innerText = "✅ Upload Complete!";
-      progressText.innerText = `${uploadedCount} Image(s) Uploaded Successfully`;
-
+      document.getElementById("loaderText").innerText = "✅ Upload Complete!";
       setTimeout(() => {
         loader.style.display = "none";
-        closeUploadModal();
-        loadNFTs();
-      }, 1800);
+        closeModal("uploadModal");
+        loadPhotos(currentSectionKey);
+      }, 1500);
     }
 
-    function closeUploadModal(){
-      document.getElementById("uploadModal").style.display = "none";
+    function showEditModal() {
+      const list = document.getElementById("sectionsList");
+      list.innerHTML = "";
+      sections.forEach(sec => {
+        const div = document.createElement("div");
+        div.style.margin = "10px 0";
+        div.innerHTML = `
+          <b>${sec.section_key}:</b> 
+          <input type="text" value="${sec.section_name}" data-key="${sec.section_key}" style="width:65%; padding:8px; border-radius:8px;">
+        `;
+        list.appendChild(div);
+      });
+      document.getElementById("editModal").style.display = "flex";
     }
 
-    // Event Listeners
-    document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("uploadModal").style.display = "flex");
-    document.getElementById("deleteModeBtn").addEventListener("click", () => {
+    async function saveSectionNames() {
+      const inputs = document.querySelectorAll("#sectionsList input");
+      for(let input of inputs) {
+        const key = input.dataset.key;
+        const name = input.value.trim();
+        if(name) {
+          await supabase.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
+        }
+      }
+      alert("Section names saved successfully!");
+      closeModal("editModal");
+      loadSections();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    // Initialize
+    function checkPassword() {
+      if(document.getElementById("passwordInput").value === PASSWORD) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+        loadSections();
+      } else {
+        document.getElementById("passwordError").style.display = "block";
+        setTimeout(() => document.getElementById("passwordError").style.display = "none", 2500);
+      }
+    }
+
+    // Button Events
+    document.getElementById("uploadBtn").onclick = () => {
+      const select = document.getElementById("uploadSectionSelect");
+      select.innerHTML = "";
+      sections.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.section_key;
+        opt.textContent = s.section_name;
+        select.appendChild(opt);
+      });
+      document.getElementById("uploadModal").style.display = "flex";
+    };
+
+    document.getElementById("deleteModeBtn").onclick = () => {
       deleteMode = !deleteMode;
       document.getElementById("deleteModeBtn").classList.toggle("active", deleteMode);
       if(!deleteMode) exitDeleteMode();
-    });
-
-    document.getElementById("closePreview").onclick = () => document.getElementById("previewModal").style.display = "none";
-    document.getElementById("closeUpload").onclick = closeUploadModal;
-
-    window.onclick = (e) => {
-      if(e.target.id === "previewModal") document.getElementById("previewModal").style.display = "none";
-      if(e.target.id === "uploadModal") closeUploadModal();
     };
 
-    // Navigation + Password Enter Key
-    document.getElementById("passwordInput").addEventListener("keypress", e => { if(e.key === "Enter") checkPassword(); });
-    // ... (navigation buttons same as previous)
+    document.getElementById("editSectionsBtn").onclick = showEditModal;
 
-    document.getElementById("xyzBtn").addEventListener("click", () => {
-      document.getElementById("xyz-section").classList.add("active");
-      document.getElementById("xyzs-section").classList.remove("active");
-      document.getElementById("xyzBtn").classList.add("active");
-      document.getElementById("xyzsBtn").classList.remove("active");
-      if(deleteMode) exitDeleteMode();
-    });
-
-    document.getElementById("xyzsBtn").addEventListener("click", () => {
-      document.getElementById("xyzs-section").classList.add("active");
-      document.getElementById("xyz-section").classList.remove("active");
-      document.getElementById("xyzsBtn").classList.add("active");
-      document.getElementById("xyzBtn").classList.remove("active");
-      if(deleteMode) exitDeleteMode();
+    document.getElementById("passwordInput").addEventListener("keypress", e => {
+      if(e.key === "Enter") checkPassword();
     });
   </script>
 </body>
