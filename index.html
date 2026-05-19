@@ -1,420 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Private Gallery</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>My Cloud Gallery</title>
 
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    body{
-      background:#0f172a;
-      color:white;
-      padding:20px;
-    }
+<style>
 
-    h1{
-      margin-bottom:20px;
-      text-align:center;
-      font-size:32px;
-    }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
 
-    .topbar{
-      display:flex;
-      gap:10px;
-      margin-bottom:20px;
-      flex-wrap:wrap;
-    }
+body{
+  background:
+  linear-gradient(
+    135deg,
+    #0f172a,
+    #111827,
+    #1e293b
+  );
 
-    input{
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      outline:none;
-      width:220px;
-      font-size:16px;
-    }
+  min-height:100vh;
 
-    button{
-      padding:12px 16px;
-      border:none;
-      border-radius:10px;
-      background:#3b82f6;
-      color:white;
-      cursor:pointer;
-      font-weight:bold;
-      transition:0.2s;
-    }
+  color:white;
 
-    button:hover{
-      background:#2563eb;
-      transform:scale(1.03);
-    }
+  padding:20px;
+}
 
-    .albums{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:20px;
-    }
+.container{
+  max-width:1400px;
+  margin:auto;
+}
 
-    .album{
-      padding:10px 18px;
-      background:#1e293b;
-      border-radius:12px;
-      cursor:pointer;
-      border:2px solid transparent;
-      transition:0.2s;
-    }
+.top{
 
-    .album:hover{
-      background:#334155;
-    }
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 
-    .album.active{
-      border-color:#3b82f6;
-    }
+  gap:15px;
 
-    .gallery{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-      gap:15px;
-    }
+  flex-wrap:wrap;
 
-    .card{
-      background:#1e293b;
-      border-radius:15px;
-      overflow:hidden;
-      padding:10px;
-      animation:fadeIn 0.3s ease;
-    }
+  margin-bottom:25px;
+}
 
-    .card img{
-      width:100%;
-      height:180px;
-      object-fit:cover;
-      border-radius:10px;
-    }
+.logo{
 
-    .actions{
-      margin-top:10px;
-      display:flex;
-      gap:8px;
-    }
+  font-size:34px;
+  font-weight:bold;
+}
 
-    .actions a,
-    .actions button{
-      flex:1;
-      text-align:center;
-      text-decoration:none;
-      font-size:14px;
-    }
+.logo span{
+  color:#3b82f6;
+}
 
-    .uploadBox{
-      margin-bottom:20px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+.album-create{
 
-    .empty{
-      text-align:center;
-      margin-top:50px;
-      opacity:0.7;
-      font-size:20px;
-    }
+  display:flex;
+  gap:10px;
 
-    @keyframes fadeIn{
-      from{
-        opacity:0;
-        transform:translateY(10px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
+  flex-wrap:wrap;
+}
 
-    @media(max-width:600px){
+input{
 
-      input{
-        width:100%;
-      }
+  padding:14px;
 
-      .topbar,
-      .uploadBox{
-        flex-direction:column;
-      }
+  border:none;
 
-      button{
-        width:100%;
-      }
-    }
-  </style>
+  border-radius:14px;
+
+  background:#1e293b;
+
+  color:white;
+
+  min-width:220px;
+
+  outline:none;
+
+  font-size:16px;
+}
+
+button{
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px 18px;
+
+  cursor:pointer;
+
+  color:white;
+
+  font-weight:bold;
+
+  transition:0.2s;
+}
+
+.primary{
+
+  background:#2563eb;
+}
+
+.primary:hover{
+
+  background:#1d4ed8;
+
+  transform:translateY(-2px);
+}
+
+.albums{
+
+  display:flex;
+
+  gap:12px;
+
+  flex-wrap:wrap;
+
+  margin-bottom:25px;
+}
+
+.album{
+
+  background:#1e293b;
+
+  padding:12px 18px;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  transition:0.2s;
+
+  border:2px solid transparent;
+}
+
+.album:hover{
+
+  transform:scale(1.04);
+}
+
+.album.active{
+
+  border-color:#3b82f6;
+
+  background:#172554;
+}
+
+.upload-box{
+
+  background:rgba(255,255,255,0.05);
+
+  border:2px dashed rgba(255,255,255,0.2);
+
+  padding:25px;
+
+  border-radius:20px;
+
+  margin-bottom:30px;
+
+  backdrop-filter:blur(10px);
+}
+
+.gallery{
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fill,minmax(230px,1fr));
+
+  gap:20px;
+}
+
+.card{
+
+  background:rgba(255,255,255,0.05);
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  backdrop-filter:blur(10px);
+
+  transition:0.25s;
+
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.card:hover{
+
+  transform:translateY(-5px);
+
+  box-shadow:
+  0 10px 30px rgba(0,0,0,0.3);
+}
+
+.card img{
+
+  width:100%;
+
+  height:220px;
+
+  object-fit:cover;
+}
+
+.card-body{
+
+  padding:15px;
+}
+
+.card-buttons{
+
+  display:flex;
+
+  gap:10px;
+
+  margin-top:10px;
+}
+
+.download{
+
+  background:#10b981;
+  flex:1;
+}
+
+.delete{
+
+  background:#ef4444;
+  flex:1;
+}
+
+.download:hover{
+
+  background:#059669;
+}
+
+.delete:hover{
+
+  background:#dc2626;
+}
+
+.empty{
+
+  text-align:center;
+
+  margin-top:60px;
+
+  opacity:0.6;
+
+  font-size:20px;
+}
+
+.footer{
+
+  text-align:center;
+
+  margin-top:40px;
+
+  opacity:0.6;
+}
+
+@media(max-width:700px){
+
+  .top{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+  }
+
+  .album-create{
+
+    width:100%;
+  }
+
+  input{
+
+    width:100%;
+  }
+
+  button{
+
+    width:100%;
+  }
+
+}
+
+</style>
 </head>
 <body>
 
-<h1>📸 My Private Gallery</h1>
+<div class="container">
 
-<div class="topbar">
-  <input type="text" id="albumName" placeholder="New Album Name">
-  <button onclick="createAlbum()">➕ Add Album</button>
+<div class="top">
+
+  <div class="logo">
+    ☁ <span>My Cloud Gallery</span>
+  </div>
+
+  <div class="album-create">
+
+    <input
+      type="text"
+      id="albumInput"
+      placeholder="Create new album"
+    >
+
+    <button
+      class="primary"
+      onclick="addAlbum()"
+    >
+      ➕ Add Album
+    </button>
+
+  </div>
+
 </div>
 
 <div class="albums" id="albums"></div>
 
-<div class="uploadBox">
-  <input type="file" id="fileInput" multiple accept="image/*">
-  <button onclick="uploadPhotos()">⬆ Upload Photos</button>
+<div class="upload-box">
+
+  <input
+    type="file"
+    id="fileInput"
+    multiple
+    accept="image/*"
+  >
+
+  <button
+    class="primary"
+    onclick="uploadPhotos()"
+  >
+    ⬆ Upload Photos
+  </button>
+
 </div>
 
 <div class="gallery" id="gallery"></div>
 
 <div class="empty" id="empty">
-  No Photos Yet
+  📂 No Photos Found
+</div>
+
+<div class="footer">
+  Made with ❤️ using Supabase
+</div>
+
 </div>
 
 <script>
 
-  // =========================
-  // SUPABASE CONFIG
-  // =========================
+// =========================
+// SUPABASE
+// =========================
 
-  const SUPABASE_URL =
-    "https://mqhckgezaxswrroqwnvt.supabase.co";
+const supabaseUrl =
+"https://mqhckgezaxswrroqwnvt.supabase.co";
 
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGNrZ2V6YXhzd3Jyb3F3bnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjgzNzUsImV4cCI6MjA5NDcwNDM3NX0.6vtCwg6Wu0r4RSD6yAfCh4wP7aovhoEiBYpCRYMIe6s";
+const supabaseKey =
+"PASTE_YOUR_REAL_ANON_KEY";
 
-  const supabase =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+const supabase =
+window.supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
 
-  // =========================
+// =========================
+// ALBUMS
+// =========================
 
-  let albums =
-    JSON.parse(localStorage.getItem("albums"))
-    || ["Default"];
+let albums =
+JSON.parse(
+  localStorage.getItem("albums")
+) || ["Default"];
 
-  let currentAlbum = albums[0];
+let currentAlbum = albums[0];
+
+renderAlbums();
+
+function addAlbum(){
+
+  const input =
+  document.getElementById("albumInput");
+
+  const name =
+  input.value.trim();
+
+  if(!name){
+
+    alert("Enter album name");
+
+    return;
+  }
+
+  if(albums.includes(name)){
+
+    alert("Album already exists");
+
+    return;
+  }
+
+  albums.push(name);
+
+  localStorage.setItem(
+    "albums",
+    JSON.stringify(albums)
+  );
+
+  currentAlbum = name;
+
+  input.value = "";
 
   renderAlbums();
 
-  // =========================
-  // CREATE ALBUM
-  // =========================
+  loadPhotos();
+}
 
-  function createAlbum(){
+function renderAlbums(){
 
-    const input =
-      document.getElementById("albumName");
+  const albumsDiv =
+  document.getElementById("albums");
 
-    const name =
-      input.value.trim();
+  albumsDiv.innerHTML = "";
 
-    if(!name){
-      alert("Enter album name");
-      return;
-    }
+  albums.forEach(album=>{
 
-    if(albums.includes(name)){
-      alert("Album already exists");
-      return;
-    }
+    const div =
+    document.createElement("div");
 
-    albums.push(name);
+    div.className =
+    currentAlbum === album
+    ? "album active"
+    : "album";
 
-    localStorage.setItem(
-      "albums",
-      JSON.stringify(albums)
-    );
+    div.innerText = "📁 " + album;
 
-    currentAlbum = name;
+    div.onclick = ()=>{
 
-    input.value = "";
+      currentAlbum = album;
 
-    renderAlbums();
+      renderAlbums();
 
-    loadPhotos();
+      loadPhotos();
+    };
+
+    albumsDiv.appendChild(div);
+  });
+}
+
+// =========================
+// UPLOAD
+// =========================
+
+async function uploadPhotos(){
+
+  const files =
+  document.getElementById("fileInput").files;
+
+  if(!files.length){
+
+    alert("Select photos");
+
+    return;
   }
 
-  // =========================
-  // SHOW ALBUMS
-  // =========================
+  for(const file of files){
 
-  function renderAlbums(){
+    const fileName =
+    `${currentAlbum}/${Date.now()}-${file.name}`;
 
-    const albumsDiv =
-      document.getElementById("albums");
-
-    albumsDiv.innerHTML = "";
-
-    albums.forEach(album=>{
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        currentAlbum === album
-        ? "album active"
-        : "album";
-
-      div.innerText = album;
-
-      div.onclick = ()=>{
-
-        currentAlbum = album;
-
-        renderAlbums();
-
-        loadPhotos();
-      }
-
-      albumsDiv.appendChild(div);
-    });
-  }
-
-  // =========================
-  // UPLOAD PHOTOS
-  // =========================
-
-  async function uploadPhotos(){
-
-    const files =
-      document.getElementById("fileInput").files;
-
-    if(!files.length){
-      alert("Select photos first");
-      return;
-    }
-
-    for(const file of files){
-
-      const fileName =
-        `${currentAlbum}/${Date.now()}-${file.name}`;
-
-      const { error } =
-        await supabase
-        .storage
-        .from("photos")
-        .upload(fileName, file);
-
-      if(error){
-        console.log(error);
-        alert("Upload failed");
-        return;
-      }
-    }
-
-    alert("Upload complete");
-
-    document.getElementById("fileInput").value = "";
-
-    loadPhotos();
-  }
-
-  // =========================
-  // LOAD PHOTOS
-  // =========================
-
-  async function loadPhotos(){
-
-    const gallery =
-      document.getElementById("gallery");
-
-    gallery.innerHTML = "";
-
-    const empty =
-      document.getElementById("empty");
-
-    const { data, error } =
-      await supabase
-      .storage
-      .from("photos")
-      .list(currentAlbum, {
-        limit:100
-      });
+    const { error } =
+    await supabase.storage
+    .from("photos")
+    .upload(fileName, file);
 
     if(error){
+
       console.log(error);
+
+      alert(error.message);
+
       return;
     }
+  }
 
-    if(!data.length){
-      empty.style.display = "block";
-      return;
-    }
+  alert("Upload Complete ✅");
 
-    empty.style.display = "none";
+  document.getElementById(
+    "fileInput"
+  ).value = "";
 
-    data.forEach(photo=>{
+  loadPhotos();
+}
 
-      const imageUrl =
-        `${SUPABASE_URL}/storage/v1/object/public/photos/${currentAlbum}/${photo.name}`;
+// =========================
+// LOAD PHOTOS
+// =========================
 
-      const card =
-        document.createElement("div");
+async function loadPhotos(){
 
-      card.className = "card";
+  const gallery =
+  document.getElementById("gallery");
 
-      card.innerHTML = `
-        <img src="${imageUrl}" />
+  const empty =
+  document.getElementById("empty");
 
-        <div class="actions">
+  gallery.innerHTML = "";
 
-          <a href="${imageUrl}" download target="_blank">
-            <button>⬇ Download</button>
+  const { data, error } =
+  await supabase.storage
+  .from("photos")
+  .list(currentAlbum);
+
+  if(error){
+
+    console.log(error);
+
+    return;
+  }
+
+  if(!data.length){
+
+    empty.style.display = "block";
+
+    return;
+  }
+
+  empty.style.display = "none";
+
+  data.forEach(photo=>{
+
+    const imageUrl =
+    `${supabaseUrl}/storage/v1/object/public/photos/${currentAlbum}/${photo.name}`;
+
+    const card =
+    document.createElement("div");
+
+    card.className = "card";
+
+    card.innerHTML = `
+
+      <img src="${imageUrl}">
+
+      <div class="card-body">
+
+        <div>
+          📸 ${photo.name.substring(0,20)}
+        </div>
+
+        <div class="card-buttons">
+
+          <a
+            href="${imageUrl}"
+            download
+            style="flex:1;"
+          >
+
+            <button class="download">
+              ⬇ Download
+            </button>
+
           </a>
 
-          <button onclick="deletePhoto('${photo.name}')">
+          <button
+            class="delete"
+            onclick="deletePhoto('${photo.name}')"
+          >
             🗑 Delete
           </button>
 
         </div>
-      `;
 
-      gallery.appendChild(card);
-    });
-  }
+      </div>
+    `;
 
-  // =========================
-  // DELETE PHOTO
-  // =========================
+    gallery.appendChild(card);
+  });
+}
 
-  async function deletePhoto(photoName){
+// =========================
+// DELETE
+// =========================
 
-    const ok =
-      confirm("Delete this photo?");
+async function deletePhoto(name){
 
-    if(!ok) return;
+  const ok =
+  confirm("Delete photo ?");
 
-    const { error } =
-      await supabase
-      .storage
-      .from("photos")
-      .remove([
-        `${currentAlbum}/${photoName}`
-      ]);
+  if(!ok) return;
 
-    if(error){
-      alert("Delete failed");
-      return;
-    }
+  const { error } =
+  await supabase.storage
+  .from("photos")
+  .remove([
+    `${currentAlbum}/${name}`
+  ]);
 
-    loadPhotos();
+  if(error){
+
+    alert("Delete failed");
+
+    return;
   }
 
   loadPhotos();
+}
+
+loadPhotos();
 
 </script>
 
