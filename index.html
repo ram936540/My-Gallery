@@ -18,15 +18,15 @@
     }
 
     #passwordScreen h1 {
-      font-size: 4.5rem;
-      font-family: 'Georgia', serif;
-      background: linear-gradient(90deg, #7c3aed, #22d3ee);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 40px rgba(124, 58, 237, 0.5);
-      letter-spacing: 4px;
-      font-weight: 400;
-    }
+  font-size: 4.5rem;
+  font-family: 'Georgia', serif;
+  background: linear-gradient(90deg, #ff0000, #ffff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+  letter-spacing: 4px;
+  font-weight: 400;
+}
 
     #passwordScreen h2 { font-size: 1.45rem; color: #a5b4fc; letter-spacing: 1px; }
 
@@ -281,22 +281,37 @@
       }
     }
 
-    function renderNavigation() {
-      const nav = document.getElementById("sectionsNav");
-      nav.innerHTML = "";
-      sections.forEach(sec => {
-        const btn = document.createElement("button");
-        btn.className = "nav-btn";
-        btn.textContent = sec.section_name;
-        if (sec.section_key === currentSectionKey) btn.classList.add("active");
-        btn.onclick = () => {
-          currentSectionKey = sec.section_key;
-          renderNavigation();
-          loadPhotos(currentSectionKey);
-        };
-        nav.appendChild(btn);
-      });
+    async function renderNavigation() {
+  const nav = document.getElementById("sectionsNav");
+  nav.innerHTML = "";
+
+  for (const sec of sections) {
+
+    // Count photos in each section
+    const { count } = await supabaseClient
+      .from("photos_data")
+      .select("*", { count: "exact", head: true })
+      .eq("section", sec.section_key);
+
+    const btn = document.createElement("button");
+    btn.className = "nav-btn";
+
+    // Section Name + Count
+    btn.textContent = `${sec.section_name} (${count || 0})`;
+
+    if (sec.section_key === currentSectionKey) {
+      btn.classList.add("active");
     }
+
+    btn.onclick = () => {
+      currentSectionKey = sec.section_key;
+      renderNavigation();
+      loadPhotos(currentSectionKey);
+    };
+
+    nav.appendChild(btn);
+  }
+}
 
     async function loadPhotos(sectionKey) {
       const { data } = await supabaseClient.from("photos_data").select("*").eq("section", sectionKey).order("id", { ascending: false });
