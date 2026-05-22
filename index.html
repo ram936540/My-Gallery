@@ -83,6 +83,31 @@
     }
     .nav-btn.active{ background:#7c3aed; border-color:#7c3aed; color:white; }
 
+    .section-dropdown{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:18px;
+}
+
+#sectionSelect{
+  width:320px;
+  max-width:90%;
+  padding:14px 18px;
+  border-radius:16px;
+  border:2px solid #7c3aed;
+  background:#140029;
+  color:white;
+  font-size:1.1rem;
+  outline:none;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(124,58,237,0.3);
+}
+
+#sectionSelect option{
+  background:#140029;
+  color:white;
+}
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
       scroll-behavior: smooth;
@@ -164,7 +189,9 @@
       </div>
     </header>
 
-    <nav class="nav" id="sectionsNav"></nav>
+    <div class="section-dropdown">
+  <select id="sectionSelect"></select>
+</div>
 
     <section id="currentSection" class="section active">
       <div class="gallery" id="currentGallery"></div>
@@ -282,35 +309,36 @@
     }
 
     async function renderNavigation() {
-  const nav = document.getElementById("sectionsNav");
-  nav.innerHTML = "";
+
+  const select = document.getElementById("sectionSelect");
+
+  select.innerHTML = "";
 
   for (const sec of sections) {
 
-    // Count photos in each section
     const { count } = await supabaseClient
       .from("photos_data")
       .select("*", { count: "exact", head: true })
       .eq("section", sec.section_key);
 
-    const btn = document.createElement("button");
-    btn.className = "nav-btn";
+    const option = document.createElement("option");
 
-    // Section Name + Count
-    btn.textContent = `${sec.section_name} (${count || 0})`;
+    option.value = sec.section_key;
 
-    if (sec.section_key === currentSectionKey) {
-      btn.classList.add("active");
+    option.textContent =
+      `${sec.section_name} (${count || 0})`;
+
+    if(sec.section_key === currentSectionKey){
+      option.selected = true;
     }
 
-    btn.onclick = () => {
-      currentSectionKey = sec.section_key;
-      renderNavigation();
-      loadPhotos(currentSectionKey);
-    };
-
-    nav.appendChild(btn);
+    select.appendChild(option);
   }
+
+  select.onchange = () => {
+    currentSectionKey = select.value;
+    loadPhotos(currentSectionKey);
+  };
 }
 
     async function loadPhotos(sectionKey) {
