@@ -295,11 +295,14 @@
 
   <!-- Preview Modal -->
   <div class="modal" id="previewModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('previewModal')">×</span>
-      <img id="modalImage" src="" alt="Photo">
-    </div>
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('previewModal')">×</span>
+
+    <img id="modalImage" src="" alt="Photo" style="display:none; width:100%; border-radius:12px;">
+
+    <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
   </div>
+</div>
 
   <!-- Loader -->
   <div class="loader-overlay" id="loader">
@@ -418,12 +421,30 @@ else {
   `;
 }
         card.onclick = () => {
-          if (deleteMode) toggleSelect(card, item.id);
-          else {
-            document.getElementById("modalImage").src = item.img;
-            document.getElementById("previewModal").style.display = "flex";
-          }
-        };
+  if (deleteMode) {
+    toggleSelect(card, item.id);
+  } else {
+
+    const img = document.getElementById("modalImage");
+    const video = document.getElementById("modalVideo");
+
+    img.style.display = "none";
+    video.style.display = "none";
+
+    if (item.file_type === "video") {
+      video.src = item.img;
+      video.style.display = "block";
+      video.controls = true;
+      video.autoplay = true;
+    } 
+    else {
+      img.src = item.img;
+      img.style.display = "block";
+    }
+
+    document.getElementById("previewModal").style.display = "flex";
+  }
+};
         gallery.appendChild(card);
       });
     }
@@ -543,8 +564,12 @@ await supabaseClient.from("photos_data").insert([{
     }
 
     function closeModal(id) {
-      document.getElementById(id).style.display = "none";
-    }
+  document.getElementById(id).style.display = "none";
+
+  const video = document.getElementById("modalVideo");
+  video.pause();
+  video.currentTime = 0;
+}
 
     function checkPassword() {
       if (document.getElementById("passwordInput").value === CORRECT_PASSWORD) {
