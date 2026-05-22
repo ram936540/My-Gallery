@@ -347,6 +347,14 @@
       { section_key: "sec20", section_name: "Memories", position: 20 }
     ];
 
+    const videoSections = [
+  { section_key: "vid1", section_name: "Travel Videos", position: 101 },
+  { section_key: "vid2", section_name: "Reels", position: 102 },
+  { section_key: "vid3", section_name: "Memories", position: 103 },
+  { section_key: "vid4", section_name: "Events", position: 104 },
+  { section_key: "vid5", section_name: "Misc", position: 105 }
+];
+
     async function addNewSections() {
       for (let sec of newSections) {
         const { data } = await supabaseClient.from("gallery_sections").select("*").eq("section_key", sec.section_key).single();
@@ -356,8 +364,23 @@
       }
     }
 
+    async function addNewVideoSections() {
+  for (let sec of videoSections) {
+    const { data } = await supabaseClient
+      .from("gallery_sections")
+      .select("*")
+      .eq("section_key", sec.section_key)
+      .single();
+
+    if (!data) {
+      await supabaseClient.from("gallery_sections").insert(sec);
+    }
+  }
+}
+
     async function loadSections() {
       await addNewSections();
+      await addNewVideoSections();
       const { data } = await supabaseClient.from("gallery_sections").select("*").order("position");
       sections = data || [];
       renderNavigation();
