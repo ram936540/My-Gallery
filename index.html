@@ -1,504 +1,917 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MY GALLERY</title>
-  <script src="https://cdn.jsdelivr.net/npm/appwrite@15.0.0/dist/umd/appwrite.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MY GALLERY</title>
 
-  <style>
-    *{ margin:0; padding:0; box-sizing:border-box; }
-    body{ background:#0a001f; color:white; font-family:Arial,sans-serif; overflow-x:hidden; }
+<script src="https://cdn.jsdelivr.net/npm/appwrite@15.0.0/dist/umd/appwrite.min.js"></script>
 
-    /* PASSWORD SCREEN */
-    #passwordScreen {
-      position: fixed; inset: 0; background: #0a001f;
-      display: flex; justify-content: center; align-items: center; 
-      flex-direction: column; gap: 25px; z-index: 9999; padding: 20px;
-    }
+<style>
 
-    #passwordScreen h1 {
-      font-size: 4.5rem;
-      font-family: 'Georgia', serif;
-      background: linear-gradient(90deg, #ff0000, #ffff00);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-      letter-spacing: 4px;
-      font-weight: 400;
-    }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-    #passwordScreen h2 { font-size: 1.45rem; color: #a5b4fc; letter-spacing: 1px; }
+body{
+  background:#0a001f;
+  color:white;
+  font-family:Arial,sans-serif;
+  overflow-x:hidden;
+}
 
-    #passwordInput {
-      padding: 16px 20px; width: 100%; max-width: 320px; font-size: 1.2rem; 
-      border-radius: 12px; border: 2px solid #6b46c1; background: #1a0033; 
-      color: white; text-align: center;
-    }
+/* PASSWORD SCREEN */
 
-    #passwordScreen button {
-      padding: 14px 50px; font-size: 1.15rem;
-      background: linear-gradient(90deg, #7c3aed, #22d3ee);
-      border: none; border-radius: 50px; color: white; cursor: pointer;
-    }
+#passwordScreen{
+  position:fixed;
+  inset:0;
+  background:#0a001f;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  gap:25px;
+  z-index:9999;
+  padding:20px;
+}
 
-    #passwordError { color:#f87171; margin-top:10px; display:none; font-size: 1.1rem; }
+#passwordScreen h1{
+  font-size:4.5rem;
+  font-family:Georgia,serif;
+  background:linear-gradient(90deg,#ff0000,#ffff00);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:4px;
+}
 
-    /* HEADER */
-    header{ text-align:center; padding: 85px 20px 15px; position:relative; }
-    header h1{
-      font-size: 3.8rem;
-      font-family: Georgia, serif;
-      color: #ffcc00;
-      text-shadow: 0 0 20px rgba(255,204,0,0.5);
-      letter-spacing: 3px;
-      font-weight: 400;
-    }
+#passwordScreen h2{
+  color:#a5b4fc;
+}
 
-    .header-buttons{ position:absolute; top:25px; right:20px; display:flex; gap:12px; z-index: 10; }
+#passwordInput{
+  padding:16px 20px;
+  width:100%;
+  max-width:320px;
+  font-size:1.2rem;
+  border-radius:12px;
+  border:2px solid #6b46c1;
+  background:#1a0033;
+  color:white;
+  text-align:center;
+}
 
-    button{
-      padding:10px 20px; background:transparent; border:2px solid #22d3ee;
-      color:#22d3ee; border-radius:50px; cursor:pointer; font-weight:bold; 
-      transition:0.3s; font-size: 1.4rem;
-    }
-    button:hover{ background:#22d3ee; color:black; transform:scale(1.05); }
+#passwordScreen button{
+  padding:14px 50px;
+  font-size:1.1rem;
+  background:linear-gradient(90deg,#7c3aed,#22d3ee);
+  border:none;
+  border-radius:50px;
+  color:white;
+  cursor:pointer;
+}
 
-    .delete-mode-btn{ border-color:#f87171; color:#f87171; }
-    .delete-mode-btn.active{ background:#f87171; color:white; }
+#passwordError{
+  color:#f87171;
+  display:none;
+}
 
-    .nav{ 
-      display:flex; justify-content:center; gap:8px; padding:12px 10px; 
-      background:#140029; flex-wrap:wrap; overflow-x:auto;
-    }
-    .nav-btn {
-      padding: 8px 16px;
-      font-size: 1rem;
-      background: transparent;
-      border: 1px solid #6b46c1;
-      color: #c4b5fd;
-      border-radius: 30px;
-      white-space: nowrap;
-      transition: 0.3s;
-    }
-    .nav-btn.active{ background:#7c3aed; border-color:#7c3aed; color:white; }
+/* HEADER */
 
-    .section-dropdown{
-      width:100%; display:flex; justify-content:center; padding:18px;
-    }
-    #sectionSelect{
-      width:320px; max-width:90%; padding:14px 18px; border-radius:16px;
-      border:2px solid #7c3aed; background:#140029; color:white;
-      font-size:1.1rem; outline:none; cursor:pointer;
-      box-shadow:0 0 20px rgba(124,58,237,0.3);
-    }
+header{
+  text-align:center;
+  padding:85px 20px 15px;
+  position:relative;
+}
 
-    .gallery{
-      width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
-      scroll-behavior: smooth;
-    }
-    .nft-card{
-      position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:12px;
-    }
-    .nft-card:hover{ transform: scale(1.03); }
+header h1{
+  font-size:3.8rem;
+  font-family:Georgia,serif;
+  color:#ffcc00;
+}
 
-    .nft-card img, .nft-card video{
-      width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
-    }
+.header-buttons{
+  position:absolute;
+  top:25px;
+  right:20px;
+  display:flex;
+  gap:12px;
+}
 
-    .nft-card.selected::after{
-      content: "✓"; position:absolute; top:10px; right:10px;
-      background:#22d3ee; color:black; width:32px; height:32px;
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-weight:bold; border:3px solid white;
-    }
+button{
+  padding:10px 20px;
+  background:transparent;
+  border:2px solid #22d3ee;
+  color:#22d3ee;
+  border-radius:50px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
-    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; padding:25px; } }
+.delete-mode-btn{
+  border-color:#f87171;
+  color:#f87171;
+}
 
-    .modal{
-      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.97);
-      z-index:1000; justify-content:center; align-items:center; padding:15px;
-    }
+.delete-mode-btn.active{
+  background:#f87171;
+  color:white;
+}
 
-    .modal-content{
-      background: #1a0033;
-      width:100%; max-width:720px; border-radius:20px;
-      padding:15px; border:2px solid #22d3ee;
-      box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
-      overflow:hidden;
-    }
+.section-dropdown{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:18px;
+}
 
-    #modalImage, #modalVideo {
-      width: 100%; max-height: 85vh; object-fit: contain; border-radius: 12px;
-    }
+#sectionSelect{
+  width:320px;
+  max-width:90%;
+  padding:14px 18px;
+  border-radius:16px;
+  border:2px solid #7c3aed;
+  background:#140029;
+  color:white;
+  font-size:1.1rem;
+}
 
-    .close{
-      position:absolute; top:20px; right:25px; font-size:45px;
-      cursor:pointer; color:#22d3ee; z-index: 100;
-    }
+.gallery{
+  width:100%;
+  padding:15px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
 
-    .loader-overlay{
-      position:fixed; inset:0; background:rgba(10,0,31,0.98);
-      display:none; justify-content:center; align-items:center;
-      flex-direction:column; z-index:99999;
-    }
-    .emoji-loader{
-      font-size:90px; animation: float 1.5s ease-in-out infinite alternate;
-      filter: drop-shadow(0 0 25px rgba(255,255,255,0.5));
-    }
-    @keyframes float{ from{ transform: translateY(0px) scale(1); } to{ transform: translateY(-20px) scale(1.08); } }
+.nft-card{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  border-radius:14px;
+  background:#16002d;
+  border:1px solid #4c1d95;
+}
 
-    .quote-text{
-      margin-top:20px; font-size:1.3rem; color:#c4b5fd; text-align:center;
-      max-width:420px; line-height:1.6; opacity:0.95; padding:0 20px;
-    }
-  </style>
+.nft-card img,
+.nft-card video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.nft-card.selected::after{
+  content:"✓";
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#22d3ee;
+  color:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+}
+
+@media(min-width:768px){
+  .gallery{
+    grid-template-columns:repeat(5,1fr);
+  }
+}
+
+@media(min-width:1024px){
+  .gallery{
+    grid-template-columns:repeat(6,1fr);
+  }
+}
+
+/* MODAL */
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.96);
+  z-index:1000;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+}
+
+.modal-content{
+  background:#1a0033;
+  width:100%;
+  max-width:720px;
+  border-radius:20px;
+  padding:15px;
+  border:2px solid #22d3ee;
+}
+
+#modalImage,
+#modalVideo{
+  width:100%;
+  max-height:85vh;
+  object-fit:contain;
+  border-radius:12px;
+}
+
+.close{
+  position:absolute;
+  top:20px;
+  right:25px;
+  font-size:45px;
+  cursor:pointer;
+  color:#22d3ee;
+}
+
+/* LOADER */
+
+.loader-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(10,0,31,0.98);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:99999;
+}
+
+.emoji-loader{
+  font-size:90px;
+  animation:float 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes float{
+  from{
+    transform:translateY(0px);
+  }
+  to{
+    transform:translateY(-20px);
+  }
+}
+
+.quote-text{
+  margin-top:20px;
+  font-size:1.3rem;
+  color:#c4b5fd;
+  text-align:center;
+}
+
+.loader-text{
+  margin-top:20px;
+  font-size:2rem;
+  color:#22d3ee;
+}
+
+.progress-text{
+  margin-top:10px;
+  font-size:1.4rem;
+}
+
+</style>
 </head>
+
 <body>
 
-  <!-- PASSWORD SCREEN -->
-  <div id="passwordScreen">
-    <h1>MY GALLERY</h1>
-    <h2>Enter Password to Access</h2>
-    <input type="password" id="passwordInput" placeholder="Enter Password"/>
-    <button onclick="checkPassword()">ENTER GALLERY</button>
-    <p id="passwordError">❌ Wrong Password</p>
-  </div>
+<!-- PASSWORD -->
 
-  <!-- MAIN CONTENT -->
-  <div id="mainContent" style="display:none;">
-    <header>
-      <h1>MY GALLERY</h1>
-      <div class="header-buttons">
-        <button id="uploadBtn" title="Upload Images">📤</button>
-        <button id="deleteModeBtn" class="delete-mode-btn" title="Delete Mode">🗑️</button>
-        <button id="editSectionsBtn" title="Edit Sections">✏️</button>
-      </div>
-    </header>
+<div id="passwordScreen">
+  <h1>MY GALLERY</h1>
+  <h2>Enter Password to Access</h2>
 
-    <div class="section-dropdown">
-      <select id="sectionSelect"></select>
-    </div>
+  <input type="password" id="passwordInput" placeholder="Enter Password">
 
-    <section id="currentSection" class="section active">
-      <div class="gallery" id="currentGallery"></div>
-    </section>
+  <button onclick="checkPassword()">
+    ENTER GALLERY
+  </button>
 
-    <!-- Delete Bar -->
-    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#f87171; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(248,113,113,0.7); z-index:10000;">
-      <span id="selectedCount">0 Selected</span>
-      <button onclick="deleteSelected()" style="margin-left:25px; background:white; color:#f87171; border:none; padding:10px 24px; border-radius:30px;">DELETE SELECTED</button>
-      <button onclick="exitDeleteMode()" style="margin-left:12px; background:transparent; border:2px solid white; color:white; padding:10px 20px; border-radius:30px;">Cancel</button>
-    </div>
-  </div>
+  <p id="passwordError">❌ Wrong Password</p>
+</div>
 
-  <!-- Attractive Upload Modal -->
-  <div class="modal" id="uploadModal">
-    <div class="modal-content" style="max-width:480px; padding:40px 30px; background: linear-gradient(135deg, #1f003d, #2e0055); border:3px solid #22d3ee;">
-      <span class="close" onclick="closeModal('uploadModal')" style="color:#22d3ee; font-size:40px;">×</span>
-      <h2 style="font-size:2.1rem; margin-bottom:8px; background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        📤 Upload Images
-      </h2>
-      <p style="color:#a5b4fc; margin-bottom:25px;">Choose your section and drop your memories</p>
-      
-      <input type="file" id="imageUpload" accept="image/*,video/*" multiple 
-             style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; border-radius:16px; color:white; margin-bottom:20px;"/>
-      
-      <select id="uploadSectionSelect" style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;"></select>
-      
-      <div style="margin-top:10px;">
-        <button onclick="uploadImages()" style="background:linear-gradient(90deg, #22d3ee, #7c3aed); color:black; border:none; padding:16px 55px; font-size:1.2rem; border-radius:50px;">🚀 Upload Now</button>
-        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; margin-left:15px; color:#22d3ee; border-radius:50px;">Cancel</button>
-      </div>
-    </div>
-  </div>
+<!-- MAIN -->
 
-  <!-- Edit Modal -->
-  <div class="modal" id="editModal">
-    <div class="modal-content">
-      <h2>Edit Section Names</h2>
-      <div id="sectionsList" style="max-height:400px; overflow-y:auto; text-align:left; padding:10px;"></div>
-      <br>
-      <button onclick="saveSectionNames()" style="background:#22d3ee; color:black; padding:12px 30px;">SAVE CHANGES</button>
-      <button onclick="closeModal('editModal')" style="margin-left:10px;">CLOSE</button>
-    </div>
-  </div>
+<div id="mainContent" style="display:none;">
 
-  <!-- Preview Modal -->
-  <div class="modal" id="previewModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('previewModal')">×</span>
-      <img id="modalImage" src="" alt="Photo" style="display:none; width:100%; border-radius:12px;">
-      <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
-    </div>
-  </div>
+<header>
 
-  <!-- Loader -->
-  <div class="loader-overlay" id="loader">
-    <div class="emoji-loader">📸</div>
-    <div class="quote-text">"Patience is the key to beautiful memories ✨"</div>
-    <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
-    <div class="progress-text" id="progressText">0 / 0</div>
-  </div>
+<h1>MY GALLERY</h1>
 
-  <script>
-    // ==================== APPWRITE CONFIG ====================
-    const client = new Appwrite.Client()
-      .setEndpoint('https://cloud.appwrite.io/v1')
-      .setProject('6a114ad10016ccbf7c88');
+<div class="header-buttons">
 
-    const storage = new Appwrite.Storage(client);
-    const databases = new Appwrite.Databases(client);
+<button id="uploadBtn">📤</button>
 
-    const DATABASE_ID = '6a114c7a0009c6453772';
-    const BUCKET_ID = '6a114b82002393c33f7d';
-    const SECTIONS_COLLECTION = 'gallery_sections';
-    const PHOTOS_COLLECTION = 'photos_data';
+<button id="deleteModeBtn" class="delete-mode-btn">
+🗑️
+</button>
 
-    let sections = [];
-    let currentSectionKey = "sec1";
-    let deleteMode = false;
-    let selectedIds = new Set();
-    const CORRECT_PASSWORD = "Krrish@123";
+</div>
 
-    const newSections = [
-      { section_key: "sec16", section_name: "Macro Shots", position: 16 },
-      { section_key: "sec17", section_name: "Night Photography", position: 17 },
-      { section_key: "sec18", section_name: "Sports", position: 18 },
-      { section_key: "sec19", section_name: "Fashion", position: 19 },
-      { section_key: "sec20", section_name: "Memories", position: 20 }
-    ];
+</header>
 
-    async function addNewSections() {
-      for (let sec of newSections) {
-        try {
-          await databases.getDocument(DATABASE_ID, SECTIONS_COLLECTION, sec.section_key);
-        } catch {
-          await databases.createDocument(DATABASE_ID, SECTIONS_COLLECTION, sec.section_key, sec);
-        }
-      }
-    }
+<div class="section-dropdown">
+<select id="sectionSelect"></select>
+</div>
 
-    async function loadSections() {
-      await addNewSections();
-      const response = await databases.listDocuments(DATABASE_ID, SECTIONS_COLLECTION, [
-        Appwrite.Query.orderAsc("position")
-      ]);
-      sections = response.documents;
-      renderNavigation();
-      if (sections.length > 0) {
-        currentSectionKey = sections[0].section_key;
-        loadPhotos(currentSectionKey);
-      }
-    }
+<section>
+<div class="gallery" id="currentGallery"></div>
+</section>
 
-    function renderNavigation() {
-      const select = document.getElementById("sectionSelect");
-      select.innerHTML = "";
-      sections.forEach(sec => {
-        const option = document.createElement("option");
-        option.value = sec.section_key;
-        option.textContent = sec.section_name;
-        if (sec.section_key === currentSectionKey) option.selected = true;
-        select.appendChild(option);
-      });
+</div>
 
-      select.onchange = () => {
-        currentSectionKey = select.value;
-        loadPhotos(currentSectionKey);
-      };
-    }
+<!-- UPLOAD MODAL -->
 
-    async function loadPhotos(sectionKey) {
-      const response = await databases.listDocuments(DATABASE_ID, PHOTOS_COLLECTION, [
-        Appwrite.Query.equal("section", sectionKey),
-        Appwrite.Query.orderDesc("$id")
-      ]);
+<div class="modal" id="uploadModal">
 
-      const gallery = document.getElementById("currentGallery");
-      gallery.innerHTML = "";
+<div class="modal-content" style="max-width:480px;">
 
-      if (response.documents.length === 0) {
-        gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#777;">No Photos Yet</h2>`;
-        return;
-      }
+<span class="close" onclick="closeModal('uploadModal')">
+×
+</span>
 
-      response.documents.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "nft-card";
-        card.dataset.id = item.$id;
+<h2 style="margin-bottom:20px;">
+📤 Upload Files
+</h2>
 
-        if (item.img.includes(".mp4") || item.img.includes("video")) {
-          card.innerHTML = `<video src="${item.img}" muted></video>`;
-        } else {
-          card.innerHTML = `<img src="${item.img}" alt="Photo" loading="lazy">`;
-        }
+<input
+type="file"
+id="imageUpload"
+accept="image/*,video/*"
+multiple
+style="
+width:100%;
+padding:18px;
+background:#14002a;
+border:2px dashed #22d3ee;
+border-radius:16px;
+color:white;
+margin-bottom:20px;
+"
+/>
 
-        card.onclick = () => {
-          if (deleteMode) toggleSelect(card, item.$id);
-          else {
-            const img = document.getElementById("modalImage");
-            const video = document.getElementById("modalVideo");
-            img.style.display = "none";
-            video.style.display = "none";
+<select
+id="uploadSectionSelect"
+style="
+width:100%;
+padding:16px;
+margin-bottom:25px;
+background:#14002a;
+border:2px solid #6b46c1;
+border-radius:12px;
+color:white;
+font-size:1.1rem;
+">
+</select>
 
-            if (item.img.includes(".mp4") || item.img.includes("video")) {
-              video.src = item.img;
-              video.style.display = "block";
-            } else {
-              img.src = item.img;
-              img.style.display = "block";
-            }
-            document.getElementById("previewModal").style.display = "flex";
-          }
-        };
-        gallery.appendChild(card);
-      });
-    }
+<button onclick="uploadImages()">
+🚀 Upload Now
+</button>
 
-    // Baaki functions same
-    function toggleSelect(card, id) {
-      if (selectedIds.has(id)) {
-        selectedIds.delete(id);
-        card.classList.remove("selected");
-      } else {
-        selectedIds.add(id);
-        card.classList.add("selected");
-      }
-      updateDeleteBar();
-    }
+</div>
 
-    function updateDeleteBar() {
-      const count = selectedIds.size;
-      document.getElementById("selectedCount").innerText = `${count} Selected`;
-      document.getElementById("deleteBar").style.display = count > 0 ? "flex" : "none";
-    }
+</div>
 
-    async function deleteSelected() {
-      if (!confirm(`Delete ${selectedIds.size} items?`)) return;
-      for (let id of selectedIds) {
-        try {
-          await databases.deleteDocument(DATABASE_ID, PHOTOS_COLLECTION, id);
-        } catch (e) {}
-      }
-      alert("Deleted Successfully");
-      exitDeleteMode();
-      loadPhotos(currentSectionKey);
-    }
+<!-- PREVIEW MODAL -->
 
-    function exitDeleteMode() {
-      deleteMode = false;
-      selectedIds.clear();
-      document.getElementById("deleteModeBtn").classList.remove("active");
-      document.getElementById("deleteBar").style.display = "none";
-      loadPhotos(currentSectionKey);
-    }
+<div class="modal" id="previewModal">
 
-    async function uploadImages() {
-      const files = document.getElementById("imageUpload").files;
-      if (files.length === 0) return alert("Please select files");
+<div class="modal-content">
 
-      const loader = document.getElementById("loader");
-      loader.style.display = "flex";
-      document.getElementById("progressText").innerText = `0 / ${files.length}`;
+<span class="close" onclick="closeModal('previewModal')">
+×
+</span>
 
-      const sectionKey = document.getElementById("uploadSectionSelect").value;
-      let count = 0;
+<img id="modalImage" style="display:none;">
 
-      for (let file of files) {
-        try {
-          const fileName = `${Date.now()}-${file.name}`;
-          const result = await storage.createFile(BUCKET_ID, Appwrite.ID.unique(), file);
-          const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${result.$id}/view?project=6a114ad10016ccbf7c88`;
+<video
+id="modalVideo"
+controls
+style="display:none;">
+</video>
 
-          await databases.createDocument(DATABASE_ID, PHOTOS_COLLECTION, Appwrite.ID.unique(), {
-            title: "Untitled",
-            img: fileUrl,
-            section: sectionKey
-          });
+</div>
 
-          count++;
-          document.getElementById("progressText").innerText = `${count} / ${files.length}`;
-        } catch (err) { console.log(err); }
-      }
+</div>
 
-      document.getElementById("loaderText").innerText = "✅ Upload Complete! 🎉";
-      setTimeout(() => {
-        loader.style.display = "none";
-        closeModal('uploadModal');
-        loadPhotos(currentSectionKey);
-      }, 1800);
-    }
+<!-- LOADER -->
 
-    function showEditModal() {
-      const list = document.getElementById("sectionsList");
-      list.innerHTML = "";
-      sections.forEach(sec => {
-        const div = document.createElement("div");
-        div.style.margin = "12px 0";
-        div.innerHTML = `<strong>${sec.section_key}:</strong> <input type="text" value="${sec.section_name}" data-key="${sec.section_key}" style="width:70%; padding:8px; border-radius:6px;">`;
-        list.appendChild(div);
-      });
-      document.getElementById("editModal").style.display = "flex";
-    }
+<div class="loader-overlay" id="loader">
 
-    async function saveSectionNames() {
-      const inputs = document.querySelectorAll("#sectionsList input");
-      for (let input of inputs) {
-        const key = input.dataset.key;
-        const name = input.value.trim();
-        if (name) {
-          await databases.updateDocument(DATABASE_ID, SECTIONS_COLLECTION, key, { section_name: name });
-        }
-      }
-      alert("Section names updated successfully!");
-      closeModal("editModal");
-      loadSections();
-    }
+<div class="emoji-loader">📸</div>
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = "none";
-      if (id === "previewModal") {
-        document.getElementById("modalVideo").pause();
-      }
-    }
+<div class="quote-text">
+Patience is the key to beautiful memories ✨
+</div>
 
-    function checkPassword() {
-      if (document.getElementById("passwordInput").value === CORRECT_PASSWORD) {
-        document.getElementById("passwordScreen").style.display = "none";
-        document.getElementById("mainContent").style.display = "block";
-        loadSections();
-      } else {
-        document.getElementById("passwordError").style.display = "block";
-        setTimeout(() => document.getElementById("passwordError").style.display = "none", 2500);
-      }
-    }
+<div class="loader-text" id="loaderText">
+Uploading...
+</div>
 
-    // Event Listeners
-    document.getElementById("uploadBtn").addEventListener("click", () => {
-      const select = document.getElementById("uploadSectionSelect");
-      select.innerHTML = "";
-      sections.forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s.section_key;
-        opt.textContent = s.section_name;
-        select.appendChild(opt);
-      });
-      document.getElementById("uploadModal").style.display = "flex";
-    });
+<div class="progress-text" id="progressText">
+0 / 0
+</div>
 
-    document.getElementById("deleteModeBtn").addEventListener("click", () => {
-      deleteMode = !deleteMode;
-      document.getElementById("deleteModeBtn").classList.toggle("active", deleteMode);
-      if (!deleteMode) exitDeleteMode();
-    });
+</div>
 
-    document.getElementById("editSectionsBtn").addEventListener("click", showEditModal);
+<script>
 
-    document.getElementById("passwordInput").addEventListener("keypress", e => {
-      if (e.key === "Enter") checkPassword();
-    });
-  </script>
+/* ================= APPWRITE ================= */
+
+const client = new Appwrite.Client();
+
+client
+.setEndpoint("https://cloud.appwrite.io/v1")
+.setProject("6a114ad10016ccbf7c88");
+
+const databases = new Appwrite.Databases(client);
+const storage = new Appwrite.Storage(client);
+
+const DATABASE_ID = "6a114c7a0009c6453772";
+const BUCKET_ID = "6a114b82002393c33f7d";
+
+/* IMPORTANT */
+/* YAHAN APNI REAL COLLECTION IDS DALO */
+
+const SECTIONS_COLLECTION = "gallery_sections";
+const PHOTOS_COLLECTION = "photos_data";
+
+/* ================= VARIABLES ================= */
+
+const CORRECT_PASSWORD = "Krrish@123";
+
+let sections = [];
+
+let currentSectionKey = "";
+
+let deleteMode = false;
+
+let selectedIds = new Set();
+
+/* ================= DEFAULT SECTIONS ================= */
+
+const defaultSections = [
+
+{
+section_key:"sec1",
+section_name:"Photos",
+position:1
+},
+
+{
+section_key:"video1",
+section_name:"Travel Videos",
+position:2
+},
+
+{
+section_key:"video2",
+section_name:"Funny Videos",
+position:3
+},
+
+{
+section_key:"video3",
+section_name:"Memories Videos",
+position:4
+},
+
+{
+section_key:"video4",
+section_name:"Editing Clips",
+position:5
+},
+
+{
+section_key:"video5",
+section_name:"Random Videos",
+position:6
+}
+
+];
+
+/* ================= PASSWORD ================= */
+
+function checkPassword(){
+
+const input =
+document.getElementById("passwordInput").value;
+
+if(input === CORRECT_PASSWORD){
+
+document.getElementById("passwordScreen").style.display = "none";
+
+document.getElementById("mainContent").style.display = "block";
+
+loadSections();
+
+}else{
+
+document.getElementById("passwordError").style.display = "block";
+
+setTimeout(()=>{
+
+document.getElementById("passwordError").style.display = "none";
+
+},2000);
+
+}
+
+}
+
+/* ================= ADD DEFAULT SECTIONS ================= */
+
+async function addDefaultSections(){
+
+try{
+
+const response =
+await databases.listDocuments(
+DATABASE_ID,
+SECTIONS_COLLECTION
+);
+
+const existing =
+response.documents.map(d => d.section_key);
+
+for(const sec of defaultSections){
+
+if(!existing.includes(sec.section_key)){
+
+await databases.createDocument(
+DATABASE_ID,
+SECTIONS_COLLECTION,
+Appwrite.ID.unique(),
+sec
+);
+
+}
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ================= LOAD SECTIONS ================= */
+
+async function loadSections(){
+
+try{
+
+await addDefaultSections();
+
+const response =
+await databases.listDocuments(
+DATABASE_ID,
+SECTIONS_COLLECTION
+);
+
+sections = response.documents.sort(
+(a,b)=>a.position-b.position
+);
+
+renderNavigation();
+
+if(sections.length > 0){
+
+currentSectionKey = sections[0].section_key;
+
+loadPhotos(currentSectionKey);
+
+}
+
+}catch(err){
+
+console.log(err);
+
+alert(err.message);
+
+}
+
+}
+
+/* ================= NAVIGATION ================= */
+
+function renderNavigation(){
+
+const select =
+document.getElementById("sectionSelect");
+
+select.innerHTML = "";
+
+sections.forEach(sec=>{
+
+const option =
+document.createElement("option");
+
+option.value = sec.section_key;
+
+option.textContent = sec.section_name;
+
+select.appendChild(option);
+
+});
+
+select.onchange = ()=>{
+
+currentSectionKey = select.value;
+
+loadPhotos(currentSectionKey);
+
+};
+
+}
+
+/* ================= LOAD PHOTOS ================= */
+
+async function loadPhotos(sectionKey){
+
+const gallery =
+document.getElementById("currentGallery");
+
+gallery.innerHTML = "";
+
+try{
+
+const response =
+await databases.listDocuments(
+DATABASE_ID,
+PHOTOS_COLLECTION,
+[
+Appwrite.Query.equal(
+"section",
+sectionKey
+)
+]
+);
+
+if(response.documents.length === 0){
+
+gallery.innerHTML =
+`
+<h2 style="padding:60px;">
+No Files Yet
+</h2>
+`;
+
+return;
+
+}
+
+response.documents.forEach(item=>{
+
+const card =
+document.createElement("div");
+
+card.className = "nft-card";
+
+card.dataset.id = item.$id;
+
+/* VIDEO */
+
+if(item.type === "video"){
+
+card.innerHTML =
+`
+<video
+src="${item.img}"
+muted
+playsinline>
+</video>
+`;
+
+}else{
+
+card.innerHTML =
+`
+<img
+src="${item.img}"
+loading="lazy">
+`;
+
+}
+
+/* CLICK */
+
+card.onclick = ()=>{
+
+if(deleteMode){
+
+toggleSelect(card,item.$id);
+
+}else{
+
+const img =
+document.getElementById("modalImage");
+
+const video =
+document.getElementById("modalVideo");
+
+img.style.display = "none";
+
+video.style.display = "none";
+
+if(item.type === "video"){
+
+video.src = item.img;
+
+video.style.display = "block";
+
+video.play();
+
+}else{
+
+img.src = item.img;
+
+img.style.display = "block";
+
+}
+
+document.getElementById("previewModal").style.display = "flex";
+
+}
+
+};
+
+gallery.appendChild(card);
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ================= UPLOAD ================= */
+
+async function uploadImages(){
+
+const files =
+document.getElementById("imageUpload").files;
+
+if(files.length === 0){
+
+alert("Select files");
+
+return;
+
+}
+
+const loader =
+document.getElementById("loader");
+
+loader.style.display = "flex";
+
+const sectionKey =
+document.getElementById("uploadSectionSelect").value;
+
+let count = 0;
+
+for(const file of files){
+
+try{
+
+const result =
+await storage.createFile(
+BUCKET_ID,
+Appwrite.ID.unique(),
+file
+);
+
+const fileUrl =
+`https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${result.$id}/view?project=6a114ad10016ccbf7c88`;
+
+const type =
+file.type.startsWith("video")
+? "video"
+: "image";
+
+await databases.createDocument(
+DATABASE_ID,
+PHOTOS_COLLECTION,
+Appwrite.ID.unique(),
+{
+img:fileUrl,
+section:sectionKey,
+type:type
+}
+);
+
+count++;
+
+document.getElementById("progressText").innerText =
+`${count} / ${files.length}`;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+document.getElementById("loaderText").innerText =
+"✅ Upload Complete!";
+
+setTimeout(()=>{
+
+loader.style.display = "none";
+
+closeModal("uploadModal");
+
+loadPhotos(currentSectionKey);
+
+},1500);
+
+}
+
+/* ================= DELETE ================= */
+
+function toggleSelect(card,id){
+
+if(selectedIds.has(id)){
+
+selectedIds.delete(id);
+
+card.classList.remove("selected");
+
+}else{
+
+selectedIds.add(id);
+
+card.classList.add("selected");
+
+}
+
+}
+
+/* ================= CLOSE MODAL ================= */
+
+function closeModal(id){
+
+document.getElementById(id).style.display = "none";
+
+const video =
+document.getElementById("modalVideo");
+
+video.pause();
+
+}
+
+/* ================= EVENTS ================= */
+
+document
+.getElementById("uploadBtn")
+.addEventListener("click",()=>{
+
+const select =
+document.getElementById("uploadSectionSelect");
+
+select.innerHTML = "";
+
+sections.forEach(sec=>{
+
+const opt =
+document.createElement("option");
+
+opt.value = sec.section_key;
+
+opt.textContent = sec.section_name;
+
+select.appendChild(opt);
+
+});
+
+document.getElementById("uploadModal").style.display = "flex";
+
+});
+
+document
+.getElementById("passwordInput")
+.addEventListener("keypress",(e)=>{
+
+if(e.key === "Enter"){
+
+checkPassword();
+
+}
+
+});
+
+</script>
+
 </body>
 </html>
