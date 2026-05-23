@@ -46,6 +46,11 @@ background:linear-gradient(90deg,#ff0000,#ffff00);
 letter-spacing:4px;
 }
 
+#passwordScreen h2{
+font-size:1.3rem;
+color:#a5b4fc;
+}
+
 #passwordInput{
 padding:16px 20px;
 width:100%;
@@ -103,8 +108,10 @@ color:#22d3ee;
 border-radius:50px;
 cursor:pointer;
 font-weight:bold;
-font-size:1.2rem;
+font-size:1.1rem;
 }
+
+/* SECTION SELECT */
 
 .section-dropdown{
 width:100%;
@@ -170,7 +177,7 @@ grid-template-columns:repeat(6,1fr);
 display:none;
 position:fixed;
 inset:0;
-background:rgba(0,0,0,0.95);
+background:rgba(0,0,0,0.96);
 z-index:9999;
 justify-content:center;
 align-items:center;
@@ -253,11 +260,13 @@ font-size:1.3rem;
 
 <body>
 
-<!-- PASSWORD -->
+<!-- PASSWORD SCREEN -->
 
 <div id="passwordScreen">
 
 <h1>MY GALLERY</h1>
+
+<h2>Enter Password to Access</h2>
 
 <input
 type="password"
@@ -275,7 +284,7 @@ ENTER GALLERY
 
 </div>
 
-<!-- MAIN -->
+<!-- MAIN CONTENT -->
 
 <div id="mainContent" style="display:none;">
 
@@ -363,7 +372,7 @@ font-size:1.1rem;
 
 </div>
 
-<!-- PREVIEW -->
+<!-- PREVIEW MODAL -->
 
 <div class="modal" id="previewModal">
 
@@ -424,11 +433,12 @@ client
 .setEndpoint("https://cloud.appwrite.io/v1")
 .setProject("6a114ad10016ccbf7c88");
 
-const storage = new Appwrite.Storage(client);
-
 const databases = new Appwrite.Databases(client);
 
+const storage = new Appwrite.Storage(client);
+
 const ID = Appwrite.ID;
+const Query = Appwrite.Query;
 
 /* ================= IDs ================= */
 
@@ -440,7 +450,7 @@ const PHOTOS_COLLECTION = "photos_data";
 
 const BUCKET_ID = "6a114b82002393c33f7d";
 
-/* ================= APP ================= */
+/* ================= VARIABLES ================= */
 
 let sections = [];
 
@@ -484,7 +494,10 @@ try{
 const response =
 await databases.listDocuments(
 DATABASE_ID,
-SECTIONS_COLLECTION
+SECTIONS_COLLECTION,
+[
+Query.orderAsc("position")
+]
 );
 
 sections = response.documents;
@@ -503,7 +516,7 @@ loadPhotos(currentSectionKey);
 
 console.log(err);
 
-alert("Sections failed");
+alert("Failed to load sections");
 }
 }
 
@@ -523,7 +536,8 @@ document.createElement("option");
 
 option.value = sec.section_key;
 
-option.textContent = sec.section_name;
+option.textContent =
+sec.section_name;
 
 select.appendChild(option);
 
@@ -531,13 +545,14 @@ select.appendChild(option);
 
 select.onchange = ()=>{
 
-currentSectionKey = select.value;
+currentSectionKey =
+select.value;
 
 loadPhotos(currentSectionKey);
 };
 }
 
-/* ================= LOAD PHOTOS ================= */
+/* ================= LOAD FILES ================= */
 
 async function loadPhotos(sectionKey){
 
@@ -546,7 +561,11 @@ try{
 const response =
 await databases.listDocuments(
 DATABASE_ID,
-PHOTOS_COLLECTION
+PHOTOS_COLLECTION,
+[
+Query.equal("section", sectionKey),
+Query.orderDesc("$createdAt")
+]
 );
 
 const gallery =
@@ -554,12 +573,10 @@ document.getElementById("currentGallery");
 
 gallery.innerHTML = "";
 
-const filtered =
-response.rows.filter(
-item => item.section === sectionKey
-);
+const files =
+response.documents;
 
-if(filtered.length === 0){
+if(files.length === 0){
 
 gallery.innerHTML =
 `
@@ -575,7 +592,7 @@ No Files Yet
 return;
 }
 
-filtered.reverse().forEach(item=>{
+files.forEach(item=>{
 
 const card =
 document.createElement("div");
@@ -644,7 +661,7 @@ gallery.appendChild(card);
 
 console.log(err);
 
-alert("Gallery failed");
+alert("Failed to load gallery");
 }
 }
 
@@ -740,7 +757,7 @@ loadPhotos(currentSectionKey);
 },1500);
 }
 
-/* ================= MODAL ================= */
+/* ================= CLOSE MODAL ================= */
 
 function closeModal(id){
 
@@ -776,6 +793,7 @@ opt.textContent =
 sec.section_name;
 
 select.appendChild(opt);
+
 });
 
 document.getElementById(
