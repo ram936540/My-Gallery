@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MY GALLERY</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@15.0.0/dist/umd/appwrite.min.js"></script>
 
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
@@ -18,42 +18,17 @@
     }
 
     #passwordScreen h1 {
-  font-size: 4.5rem;
-  font-family: 'Georgia', serif;
-  background: linear-gradient(90deg, #ff0000, #ffff00);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-  letter-spacing: 4px;
-  font-weight: 400;
-}
-
-    #passwordScreen h2 { font-size: 1.45rem; color: #a5b4fc; letter-spacing: 1px; }
-
-    #passwordInput {
-      padding: 16px 20px; width: 100%; max-width: 320px; font-size: 1.2rem; 
-      border-radius: 12px; border: 2px solid #6b46c1; background: #1a0033; 
-      color: white; text-align: center;
+      font-size: 4.5rem; font-family: 'Georgia', serif;
+      background: linear-gradient(90deg, #ff0000, #ffff00);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+      letter-spacing: 4px; font-weight: 400;
     }
 
-    #passwordScreen button {
-      padding: 14px 50px; font-size: 1.15rem;
-      background: linear-gradient(90deg, #7c3aed, #22d3ee);
-      border: none; border-radius: 50px; color: white; cursor: pointer;
+    header h1 {
+      font-size: 3.8rem; font-family: Georgia, serif; color: #ffcc00;
+      text-shadow: 0 0 20px rgba(255,204,0,0.5);
     }
-
-    #passwordError { color:#f87171; margin-top:10px; display:none; font-size: 1.1rem; }
-
-    /* MAIN HEADER */
-    header{ text-align:center; padding: 85px 20px 15px; position:relative; }
-    header h1{
-  font-size: 3.8rem;
-  font-family: Georgia, serif;
-  color: #ffcc00;
-  text-shadow: 0 0 20px rgba(255,204,0,0.5);
-  letter-spacing: 3px;
-  font-weight: 400;
-}
 
     .header-buttons{ position:absolute; top:25px; right:20px; display:flex; gap:12px; z-index: 10; }
 
@@ -67,71 +42,26 @@
     .delete-mode-btn{ border-color:#f87171; color:#f87171; }
     .delete-mode-btn.active{ background:#f87171; color:white; }
 
-    .nav{ 
-      display:flex; justify-content:center; gap:8px; padding:12px 10px; 
-      background:#140029; flex-wrap:wrap; overflow-x:auto;
-    }
+    .nav{ display:flex; justify-content:center; gap:8px; padding:12px 10px; background:#140029; flex-wrap:wrap; overflow-x:auto; }
     .nav-btn {
-      padding: 8px 16px;
-      font-size: 1rem;
-      background: transparent;
-      border: 1px solid #6b46c1;
-      color: #c4b5fd;
-      border-radius: 30px;
-      white-space: nowrap;
-      transition: 0.3s;
+      padding: 8px 16px; font-size: 1rem; background: transparent;
+      border: 1px solid #6b46c1; color: #c4b5fd; border-radius: 30px;
+      white-space: nowrap; transition: 0.3s;
     }
     .nav-btn.active{ background:#7c3aed; border-color:#7c3aed; color:white; }
 
-    .section-dropdown{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  padding:18px;
-}
-
-#sectionSelect{
-  width:320px;
-  max-width:90%;
-  padding:14px 18px;
-  border-radius:16px;
-  border:2px solid #7c3aed;
-  background:#140029;
-  color:white;
-  font-size:1.1rem;
-  outline:none;
-  cursor:pointer;
-  box-shadow:0 0 20px rgba(124,58,237,0.3);
-}
-
-#sectionSelect option{
-  background:#140029;
-  color:white;
-}
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
-      scroll-behavior: smooth;
     }
     .nft-card{
-  position:relative;
-  width:100%;
-  aspect-ratio:1/1;
-  overflow:hidden;
-  border-radius:12px;
-}
+      background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #4c1d95;
+      position:relative; cursor:pointer; transition: transform 0.2s;
     }
     .nft-card:hover{ transform: scale(1.03); }
 
-    .nft-card img{
-      width:100%; aspect-ratio:1/1; object-fit:cover; display:block; loading: lazy;
+    .nft-card img, .nft-card video{
+      width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
     }
-
-    .nft-card video{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  display:block;
-}
 
     .nft-card.selected::after{
       content: "✓"; position:absolute; top:10px; right:10px;
@@ -149,76 +79,18 @@
     }
 
     .modal-content{
-      background: #1a0033;
-      width:100%; max-width:720px; border-radius:20px;
-      padding:15px; border:2px solid #22d3ee;
-      box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
-      overflow:hidden;
+      background: #1a0033; width:100%; max-width:720px; border-radius:20px;
+      padding:15px; border:2px solid #22d3ee; box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
     }
 
-    #modalImage {
-      width: 100%; height: auto; max-height: 85vh;
-      object-fit: contain; border-radius: 12px; display: block;
+    #modalImage, #modalVideo {
+      width: 100%; max-height: 85vh; object-fit: contain; border-radius: 12px;
     }
 
     .close{
       position:absolute; top:20px; right:25px; font-size:45px;
       cursor:pointer; color:#22d3ee; z-index: 100;
     }
-
-    .loader-overlay{
-      position:fixed; inset:0; background:rgba(10,0,31,0.98);
-      display:none; justify-content:center; align-items:center;
-      flex-direction:column; z-index:99999;
-    }
-    .loader{ width:180px; height:180px; animation: bounce 1.4s infinite alternate; }
-    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-45px); } }
-
-    .loader-text{ margin-top:25px; color:#22d3ee; font-size:2.2rem; font-weight:bold; }
-    .progress-text{ margin-top:10px; color:#fff; font-size:1.6rem; font-weight:bold; }
-    .nft-card video{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  display:block;
-  background:black;
-}
-
-.nft-card div{
-  height:220px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#140029;
-  color:#22d3ee;
-  font-size:1.2rem;
-  border-radius:10px;
-}
-    .emoji-loader{
-  font-size:90px;
-  animation: float 1.5s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 25px rgba(255,255,255,0.5));
-}
-
-@keyframes float{
-  from{
-    transform: translateY(0px) scale(1);
-  }
-  to{
-    transform: translateY(-20px) scale(1.08);
-  }
-}
-
-.quote-text{
-  margin-top:20px;
-  font-size:1.3rem;
-  color:#c4b5fd;
-  text-align:center;
-  max-width:420px;
-  line-height:1.6;
-  opacity:0.95;
-  padding:0 20px;
-}
   </style>
 </head>
 <body>
@@ -243,9 +115,7 @@
       </div>
     </header>
 
-    <div class="section-dropdown">
-  <select id="sectionSelect"></select>
-</div>
+    <nav class="nav" id="sectionsNav"></nav>
 
     <section id="currentSection" class="section active">
       <div class="gallery" id="currentGallery"></div>
@@ -259,41 +129,27 @@
     </div>
   </div>
 
-  <!-- ==================== ATTRACTIVE UPLOAD MODAL ==================== -->
+  <!-- Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content" style="max-width:480px; padding:40px 30px; background: linear-gradient(135deg, #1f003d, #2e0055); border:3px solid #22d3ee;">
       <span class="close" onclick="closeModal('uploadModal')" style="color:#22d3ee; font-size:40px;">×</span>
-      
       <h2 style="font-size:2.1rem; margin-bottom:8px; background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         📤 Upload Images
       </h2>
       <p style="color:#a5b4fc; margin-bottom:25px;">Choose your section and drop your memories</p>
       
-      <input type="file" id="imageUpload" accept="image/*,video/*,application/pdf" multiple 
-             style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; 
-                    border-radius:16px; color:white; text-align:center; cursor:pointer; margin-bottom:20px;"/>
+      <input type="file" id="imageUpload" accept="image/*,video/*" multiple style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; border-radius:16px; color:white; margin-bottom:20px;"/>
       
-      <select id="uploadSectionSelect" 
-              style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; 
-                     border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;">
-      </select>
+      <select id="uploadSectionSelect" style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;"></select>
       
       <div style="margin-top:10px;">
-        <button onclick="uploadImages()" 
-                style="background:linear-gradient(90deg, #22d3ee, #7c3aed); color:black; border:none; 
-                       padding:16px 55px; font-size:1.2rem; border-radius:50px; font-weight:bold;">
-          🚀 Upload Now
-        </button>
-        <button onclick="closeModal('uploadModal')" 
-                style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; 
-                       margin-left:15px; color:#22d3ee; border-radius:50px;">
-          Cancel
-        </button>
+        <button onclick="uploadImages()" style="background:linear-gradient(90deg, #22d3ee, #7c3aed); color:black; border:none; padding:16px 55px; font-size:1.2rem; border-radius:50px;">🚀 Upload Now</button>
+        <button onclick="closeModal('uploadModal')" style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; margin-left:15px; color:#22d3ee; border-radius:50px;">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Edit Sections Modal -->
+  <!-- Edit Modal -->
   <div class="modal" id="editModal">
     <div class="modal-content">
       <h2>Edit Section Names</h2>
@@ -306,31 +162,35 @@
 
   <!-- Preview Modal -->
   <div class="modal" id="previewModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('previewModal')">×</span>
-
-    <img id="modalImage" src="" alt="Photo" style="display:none; width:100%; border-radius:12px;">
-
-    <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('previewModal')">×</span>
+      <img id="modalImage" src="" alt="Photo" style="display:block; width:100%; border-radius:12px;">
+      <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
+    </div>
   </div>
-</div>
 
   <!-- Loader -->
   <div class="loader-overlay" id="loader">
-    <div class="emoji-loader">📸</div>
-
-<div class="quote-text">
-  "Patience is the key to beautiful memories ✨"
-</div>
+    <div class="loader">
+      <img src="https://i.imgur.com/8vJ8z3K.gif" width="180" alt="Tom and Jerry">
+    </div>
     <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
     <div class="progress-text" id="progressText">0 / 0</div>
   </div>
 
   <script>
-    const SUPABASE_URL = "https://mqhckgezaxswrroqwnvt.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGNrZ2V6YXhzd3Jyb3F3bnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjgzNzUsImV4cCI6MjA5NDcwNDM3NX0.6vtCwg6Wu0r4RSD6yAfCh4wP7aovhoEiBYpCRYMIe6s";
+    // ==================== APPWRITE CONFIG ====================
+    const client = new Appwrite.Client()
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject('6a114ad10016ccbf7c88');
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const storage = new Appwrite.Storage(client);
+    const databases = new Appwrite.Databases(client);
+
+    const DATABASE_ID = '6a114c7a0009c6453772';
+    const BUCKET_ID = '6a114b82002393c33f7d';
+    const SECTIONS_COLLECTION = 'gallery_sections';
+    const PHOTOS_COLLECTION = 'photos_data';
 
     let sections = [];
     let currentSectionKey = "sec1";
@@ -338,7 +198,6 @@
     let selectedIds = new Set();
     const CORRECT_PASSWORD = "Krrish@123";
 
-    // Sirf 5 Naye Sections
     const newSections = [
       { section_key: "sec16", section_name: "Macro Shots", position: 16 },
       { section_key: "sec17", section_name: "Night Photography", position: 17 },
@@ -347,42 +206,22 @@
       { section_key: "sec20", section_name: "Memories", position: 20 }
     ];
 
-    const videoSections = [
-  { section_key: "vid1", section_name: "Travel Videos", position: 101 },
-  { section_key: "vid2", section_name: "Reels", position: 102 },
-  { section_key: "vid3", section_name: "Memories", position: 103 },
-  { section_key: "vid4", section_name: "Events", position: 104 },
-  { section_key: "vid5", section_name: "Misc", position: 105 }
-];
-
     async function addNewSections() {
       for (let sec of newSections) {
-        const { data } = await supabaseClient.from("gallery_sections").select("*").eq("section_key", sec.section_key).single();
-        if (!data) {
-          await supabaseClient.from("gallery_sections").insert(sec);
+        try {
+          await databases.getDocument(DATABASE_ID, SECTIONS_COLLECTION, sec.section_key);
+        } catch {
+          await databases.createDocument(DATABASE_ID, SECTIONS_COLLECTION, sec.section_key, sec);
         }
       }
     }
 
-    async function addNewVideoSections() {
-  for (let sec of videoSections) {
-    const { data } = await supabaseClient
-      .from("gallery_sections")
-      .select("*")
-      .eq("section_key", sec.section_key)
-      .single();
-
-    if (!data) {
-      await supabaseClient.from("gallery_sections").insert(sec);
-    }
-  }
-}
-
     async function loadSections() {
       await addNewSections();
-      await addNewVideoSections();
-      const { data } = await supabaseClient.from("gallery_sections").select("*").order("position");
-      sections = data || [];
+      const response = await databases.listDocuments(DATABASE_ID, SECTIONS_COLLECTION, [
+        Appwrite.Query.orderAsc("position")
+      ]);
+      sections = response.documents;
       renderNavigation();
       if (sections.length > 0) {
         currentSectionKey = sections[0].section_key;
@@ -390,101 +229,55 @@
       }
     }
 
-    async function renderNavigation() {
-
-  const select = document.getElementById("sectionSelect");
-
-  select.innerHTML = "";
-
-  for (const sec of sections) {
-
-    const { count } = await supabaseClient
-      .from("photos_data")
-      .select("*", { count: "exact", head: true })
-      .eq("section", sec.section_key);
-
-    const option = document.createElement("option");
-
-    option.value = sec.section_key;
-
-    option.textContent =
-      `${sec.section_name} (${count || 0})`;
-
-    if(sec.section_key === currentSectionKey){
-      option.selected = true;
+    function renderNavigation() {
+      const nav = document.getElementById("sectionsNav");
+      nav.innerHTML = "";
+      sections.forEach(sec => {
+        const btn = document.createElement("button");
+        btn.className = "nav-btn";
+        btn.textContent = sec.section_name;
+        if (sec.section_key === currentSectionKey) btn.classList.add("active");
+        btn.onclick = () => {
+          currentSectionKey = sec.section_key;
+          renderNavigation();
+          loadPhotos(currentSectionKey);
+        };
+        nav.appendChild(btn);
+      });
     }
 
-    select.appendChild(option);
-  }
-
-  select.onchange = () => {
-    currentSectionKey = select.value;
-    loadPhotos(currentSectionKey);
-  };
-}
-
     async function loadPhotos(sectionKey) {
-      const { data } = await supabaseClient.from("photos_data").select("*").eq("section", sectionKey).order("id", { ascending: false });
+      const response = await databases.listDocuments(DATABASE_ID, PHOTOS_COLLECTION, [
+        Appwrite.Query.equal("section", sectionKey),
+        Appwrite.Query.orderDesc("$id")
+      ]);
+
       const gallery = document.getElementById("currentGallery");
       gallery.innerHTML = "";
 
-      if (!data || data.length === 0) {
+      if (response.documents.length === 0) {
         gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#777;">No Photos Yet</h2>`;
         return;
       }
 
-      data.forEach(item => {
+      response.documents.forEach(item => {
         const card = document.createElement("div");
         card.className = "nft-card";
-        card.dataset.id = item.id;
-        if (item.file_type === "video") {
-  card.innerHTML = `
-    <video src="${item.img}" muted></video>
-  `;
-} 
-else if (item.file_type === "pdf") {
-  card.innerHTML = `
-    <div style="padding:20px;text-align:center;">
-      📄 PDF File
-    </div>
-  `;
-} 
-else {
-  const isVideo = item.img.includes(".mp4") || item.img.includes("video");
+        card.dataset.id = item.$id;
+        card.innerHTML = `<img src="${item.img}" alt="Photo" loading="lazy">`;
 
-card.innerHTML = isVideo
-  ? `<video src="${item.img}" muted playsinline></video>`
-  : `<img src="${item.img}" alt="Photo" loading="lazy">`;
-}
         card.onclick = () => {
-  if (deleteMode) {
-    toggleSelect(card, item.id);
-  } else {
-
-    const img = document.getElementById("modalImage");
-    const video = document.getElementById("modalVideo");
-
-    img.style.display = "none";
-    video.style.display = "none";
-
-    if (item.file_type === "video") {
-      video.src = item.img;
-      video.style.display = "block";
-      video.controls = true;
-      video.autoplay = true;
-    } 
-    else {
-      img.src = item.img;
-      img.style.display = "block";
-    }
-
-    document.getElementById("previewModal").style.display = "flex";
-  }
-};
+          if (deleteMode) toggleSelect(card, item.$id);
+          else {
+            document.getElementById("modalImage").src = item.img;
+            document.getElementById("previewModal").style.display = "flex";
+          }
+        };
         gallery.appendChild(card);
       });
     }
 
+    // ==================== Baaki Functions ====================
     function toggleSelect(card, id) {
       if (selectedIds.has(id)) {
         selectedIds.delete(id);
@@ -503,15 +296,10 @@ card.innerHTML = isVideo
     }
 
     async function deleteSelected() {
-      if (!confirm(`Delete ${selectedIds.size} photos permanently?`)) return;
+      if (!confirm(`Delete ${selectedIds.size} items?`)) return;
       for (let id of selectedIds) {
         try {
-          const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
-          if (photo?.img) {
-            const path = photo.img.split("/photos/")[1];
-            if (path) await supabaseClient.storage.from("photos").remove([path]);
-          }
-          await supabaseClient.from("photos_data").delete().eq("id", id);
+          await databases.deleteDocument(DATABASE_ID, PHOTOS_COLLECTION, id);
         } catch (e) {}
       }
       alert("Deleted Successfully");
@@ -529,7 +317,7 @@ card.innerHTML = isVideo
 
     async function uploadImages() {
       const files = document.getElementById("imageUpload").files;
-      if (files.length === 0) return alert("Please select images");
+      if (files.length === 0) return alert("Please select files");
 
       const loader = document.getElementById("loader");
       loader.style.display = "flex";
@@ -540,29 +328,21 @@ card.innerHTML = isVideo
 
       for (let file of files) {
         try {
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${file.name.split('.').pop()}`;
-          const path = `${sectionKey}/${fileName}`;
+          const fileName = `${Date.now()}-${file.name}`;
+          const result = await storage.createFile(BUCKET_ID, Appwrite.ID.unique(), file);
+          const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${result.$id}/view?project=6a114ad10016ccbf7c88`;
 
-          await supabaseClient.storage.from("photos").upload(path, file, { upsert: true });
-          const { data: urlData } = supabaseClient.storage.from("photos").getPublicUrl(path);
-
-          const fileType = file.type.startsWith("video/")
-  ? "video"
-  : file.type === "application/pdf"
-  ? "pdf"
-  : "image";
-
-await supabaseClient.from("photos_data").insert([{
-  title: "Untitled",
-  description: "",
-  img: urlData.publicUrl,
-  section: sectionKey,
-  file_type: fileType
-}]);
+          await databases.createDocument(DATABASE_ID, PHOTOS_COLLECTION, Appwrite.ID.unique(), {
+            title: "Untitled",
+            img: fileUrl,
+            section: sectionKey
+          });
 
           count++;
           document.getElementById("progressText").innerText = `${count} / ${files.length}`;
-        } catch (err) { console.log(err); }
+        } catch (err) {
+          console.log(err);
+        }
       }
 
       document.getElementById("loaderText").innerText = "✅ Upload Complete! 🎉";
@@ -591,7 +371,7 @@ await supabaseClient.from("photos_data").insert([{
         const key = input.dataset.key;
         const name = input.value.trim();
         if (name) {
-          await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
+          await databases.updateDocument(DATABASE_ID, SECTIONS_COLLECTION, key, { section_name: name });
         }
       }
       alert("Section names updated successfully!");
@@ -600,12 +380,8 @@ await supabaseClient.from("photos_data").insert([{
     }
 
     function closeModal(id) {
-  document.getElementById(id).style.display = "none";
-
-  const video = document.getElementById("modalVideo");
-  video.pause();
-  video.currentTime = 0;
-}
+      document.getElementById(id).style.display = "none";
+    }
 
     function checkPassword() {
       if (document.getElementById("passwordInput").value === CORRECT_PASSWORD) {
