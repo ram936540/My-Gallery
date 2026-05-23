@@ -18,16 +18,41 @@
     }
 
     #passwordScreen h1 {
-      font-size: 4.5rem; font-family: 'Georgia', serif;
+      font-size: 4.5rem;
+      font-family: 'Georgia', serif;
       background: linear-gradient(90deg, #ff0000, #ffff00);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-      letter-spacing: 4px; font-weight: 400;
+      letter-spacing: 4px;
+      font-weight: 400;
     }
 
-    header h1 {
-      font-size: 3.8rem; font-family: Georgia, serif; color: #ffcc00;
+    #passwordScreen h2 { font-size: 1.45rem; color: #a5b4fc; letter-spacing: 1px; }
+
+    #passwordInput {
+      padding: 16px 20px; width: 100%; max-width: 320px; font-size: 1.2rem; 
+      border-radius: 12px; border: 2px solid #6b46c1; background: #1a0033; 
+      color: white; text-align: center;
+    }
+
+    #passwordScreen button {
+      padding: 14px 50px; font-size: 1.15rem;
+      background: linear-gradient(90deg, #7c3aed, #22d3ee);
+      border: none; border-radius: 50px; color: white; cursor: pointer;
+    }
+
+    #passwordError { color:#f87171; margin-top:10px; display:none; font-size: 1.1rem; }
+
+    /* HEADER */
+    header{ text-align:center; padding: 85px 20px 15px; position:relative; }
+    header h1{
+      font-size: 3.8rem;
+      font-family: Georgia, serif;
+      color: #ffcc00;
       text-shadow: 0 0 20px rgba(255,204,0,0.5);
+      letter-spacing: 3px;
+      font-weight: 400;
     }
 
     .header-buttons{ position:absolute; top:25px; right:20px; display:flex; gap:12px; z-index: 10; }
@@ -42,20 +67,38 @@
     .delete-mode-btn{ border-color:#f87171; color:#f87171; }
     .delete-mode-btn.active{ background:#f87171; color:white; }
 
-    .nav{ display:flex; justify-content:center; gap:8px; padding:12px 10px; background:#140029; flex-wrap:wrap; overflow-x:auto; }
+    .nav{ 
+      display:flex; justify-content:center; gap:8px; padding:12px 10px; 
+      background:#140029; flex-wrap:wrap; overflow-x:auto;
+    }
     .nav-btn {
-      padding: 8px 16px; font-size: 1rem; background: transparent;
-      border: 1px solid #6b46c1; color: #c4b5fd; border-radius: 30px;
-      white-space: nowrap; transition: 0.3s;
+      padding: 8px 16px;
+      font-size: 1rem;
+      background: transparent;
+      border: 1px solid #6b46c1;
+      color: #c4b5fd;
+      border-radius: 30px;
+      white-space: nowrap;
+      transition: 0.3s;
     }
     .nav-btn.active{ background:#7c3aed; border-color:#7c3aed; color:white; }
 
+    .section-dropdown{
+      width:100%; display:flex; justify-content:center; padding:18px;
+    }
+    #sectionSelect{
+      width:320px; max-width:90%; padding:14px 18px; border-radius:16px;
+      border:2px solid #7c3aed; background:#140029; color:white;
+      font-size:1.1rem; outline:none; cursor:pointer;
+      box-shadow:0 0 20px rgba(124,58,237,0.3);
+    }
+
     .gallery{
       width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+      scroll-behavior: smooth;
     }
     .nft-card{
-      background:#1d0037; border-radius:12px; overflow:hidden; border:1px solid #4c1d95;
-      position:relative; cursor:pointer; transition: transform 0.2s;
+      position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:12px;
     }
     .nft-card:hover{ transform: scale(1.03); }
 
@@ -79,8 +122,11 @@
     }
 
     .modal-content{
-      background: #1a0033; width:100%; max-width:720px; border-radius:20px;
-      padding:15px; border:2px solid #22d3ee; box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
+      background: #1a0033;
+      width:100%; max-width:720px; border-radius:20px;
+      padding:15px; border:2px solid #22d3ee;
+      box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
+      overflow:hidden;
     }
 
     #modalImage, #modalVideo {
@@ -90,6 +136,22 @@
     .close{
       position:absolute; top:20px; right:25px; font-size:45px;
       cursor:pointer; color:#22d3ee; z-index: 100;
+    }
+
+    .loader-overlay{
+      position:fixed; inset:0; background:rgba(10,0,31,0.98);
+      display:none; justify-content:center; align-items:center;
+      flex-direction:column; z-index:99999;
+    }
+    .emoji-loader{
+      font-size:90px; animation: float 1.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 25px rgba(255,255,255,0.5));
+    }
+    @keyframes float{ from{ transform: translateY(0px) scale(1); } to{ transform: translateY(-20px) scale(1.08); } }
+
+    .quote-text{
+      margin-top:20px; font-size:1.3rem; color:#c4b5fd; text-align:center;
+      max-width:420px; line-height:1.6; opacity:0.95; padding:0 20px;
     }
   </style>
 </head>
@@ -115,7 +177,9 @@
       </div>
     </header>
 
-    <nav class="nav" id="sectionsNav"></nav>
+    <div class="section-dropdown">
+      <select id="sectionSelect"></select>
+    </div>
 
     <section id="currentSection" class="section active">
       <div class="gallery" id="currentGallery"></div>
@@ -129,7 +193,7 @@
     </div>
   </div>
 
-  <!-- Upload Modal -->
+  <!-- Attractive Upload Modal -->
   <div class="modal" id="uploadModal">
     <div class="modal-content" style="max-width:480px; padding:40px 30px; background: linear-gradient(135deg, #1f003d, #2e0055); border:3px solid #22d3ee;">
       <span class="close" onclick="closeModal('uploadModal')" style="color:#22d3ee; font-size:40px;">×</span>
@@ -138,7 +202,8 @@
       </h2>
       <p style="color:#a5b4fc; margin-bottom:25px;">Choose your section and drop your memories</p>
       
-      <input type="file" id="imageUpload" accept="image/*,video/*" multiple style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; border-radius:16px; color:white; margin-bottom:20px;"/>
+      <input type="file" id="imageUpload" accept="image/*,video/*" multiple 
+             style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; border-radius:16px; color:white; margin-bottom:20px;"/>
       
       <select id="uploadSectionSelect" style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;"></select>
       
@@ -164,16 +229,15 @@
   <div class="modal" id="previewModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('previewModal')">×</span>
-      <img id="modalImage" src="" alt="Photo" style="display:block; width:100%; border-radius:12px;">
+      <img id="modalImage" src="" alt="Photo" style="display:none; width:100%; border-radius:12px;">
       <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
     </div>
   </div>
 
   <!-- Loader -->
   <div class="loader-overlay" id="loader">
-    <div class="loader">
-      <img src="https://i.imgur.com/8vJ8z3K.gif" width="180" alt="Tom and Jerry">
-    </div>
+    <div class="emoji-loader">📸</div>
+    <div class="quote-text">"Patience is the key to beautiful memories ✨"</div>
     <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
     <div class="progress-text" id="progressText">0 / 0</div>
   </div>
@@ -230,20 +294,20 @@
     }
 
     function renderNavigation() {
-      const nav = document.getElementById("sectionsNav");
-      nav.innerHTML = "";
+      const select = document.getElementById("sectionSelect");
+      select.innerHTML = "";
       sections.forEach(sec => {
-        const btn = document.createElement("button");
-        btn.className = "nav-btn";
-        btn.textContent = sec.section_name;
-        if (sec.section_key === currentSectionKey) btn.classList.add("active");
-        btn.onclick = () => {
-          currentSectionKey = sec.section_key;
-          renderNavigation();
-          loadPhotos(currentSectionKey);
-        };
-        nav.appendChild(btn);
+        const option = document.createElement("option");
+        option.value = sec.section_key;
+        option.textContent = sec.section_name;
+        if (sec.section_key === currentSectionKey) option.selected = true;
+        select.appendChild(option);
       });
+
+      select.onchange = () => {
+        currentSectionKey = select.value;
+        loadPhotos(currentSectionKey);
+      };
     }
 
     async function loadPhotos(sectionKey) {
@@ -264,12 +328,28 @@
         const card = document.createElement("div");
         card.className = "nft-card";
         card.dataset.id = item.$id;
-        card.innerHTML = `<img src="${item.img}" alt="Photo" loading="lazy">`;
+
+        if (item.img.includes(".mp4") || item.img.includes("video")) {
+          card.innerHTML = `<video src="${item.img}" muted></video>`;
+        } else {
+          card.innerHTML = `<img src="${item.img}" alt="Photo" loading="lazy">`;
+        }
 
         card.onclick = () => {
           if (deleteMode) toggleSelect(card, item.$id);
           else {
-            document.getElementById("modalImage").src = item.img;
+            const img = document.getElementById("modalImage");
+            const video = document.getElementById("modalVideo");
+            img.style.display = "none";
+            video.style.display = "none";
+
+            if (item.img.includes(".mp4") || item.img.includes("video")) {
+              video.src = item.img;
+              video.style.display = "block";
+            } else {
+              img.src = item.img;
+              img.style.display = "block";
+            }
             document.getElementById("previewModal").style.display = "flex";
           }
         };
@@ -277,7 +357,7 @@
       });
     }
 
-    // ==================== Baaki Functions ====================
+    // Baaki functions same
     function toggleSelect(card, id) {
       if (selectedIds.has(id)) {
         selectedIds.delete(id);
@@ -340,9 +420,7 @@
 
           count++;
           document.getElementById("progressText").innerText = `${count} / ${files.length}`;
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) { console.log(err); }
       }
 
       document.getElementById("loaderText").innerText = "✅ Upload Complete! 🎉";
@@ -381,6 +459,9 @@
 
     function closeModal(id) {
       document.getElementById(id).style.display = "none";
+      if (id === "previewModal") {
+        document.getElementById("modalVideo").pause();
+      }
     }
 
     function checkPassword() {
