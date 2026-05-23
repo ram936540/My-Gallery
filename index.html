@@ -426,7 +426,7 @@ client
 
 const storage = new Appwrite.Storage(client);
 
-const databases = new Appwrite.TablesDB(client);
+const databases = new Appwrite.Databases(client);
 
 const ID = Appwrite.ID;
 
@@ -482,12 +482,12 @@ async function loadSections(){
 try{
 
 const response =
-await databases.listRows(
+await databases.listDocuments(
 DATABASE_ID,
 SECTIONS_COLLECTION
 );
 
-sections = response.rows;
+sections = response.documents;
 
 renderNavigation();
 
@@ -544,7 +544,7 @@ async function loadPhotos(sectionKey){
 try{
 
 const response =
-await databases.listRows(
+await databases.listDocuments(
 DATABASE_ID,
 PHOTOS_COLLECTION
 );
@@ -700,7 +700,7 @@ file.type.startsWith("video")
 ? "video"
 : "image";
 
-await databases.createRow(
+await databases.createDocument(
 DATABASE_ID,
 PHOTOS_COLLECTION,
 ID.unique(),
