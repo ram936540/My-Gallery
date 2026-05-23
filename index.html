@@ -1,217 +1,647 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MY GALLERY</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MY GALLERY</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/appwrite@15.0.0/dist/umd/appwrite.min.js"></script>
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{ background:#0a001f; color:white; font-family:Arial,sans-serif; overflow-x:hidden; }
 
-<style>
-body{
-margin:0;
-background:#0a001f;
-color:white;
-font-family:Arial;
+    /* PASSWORD SCREEN */
+    #passwordScreen {
+      position: fixed; inset: 0; background: #0a001f;
+      display: flex; justify-content: center; align-items: center; 
+      flex-direction: column; gap: 25px; z-index: 9999; padding: 20px;
+    }
+
+    #passwordScreen h1 {
+  font-size: 4.5rem;
+  font-family: 'Georgia', serif;
+  background: linear-gradient(90deg, #ff0000, #ffff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+  letter-spacing: 4px;
+  font-weight: 400;
 }
 
-/* PASSWORD */
-#passwordScreen{
-position:fixed;
-inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-gap:15px;
-background:#0a001f;
-z-index:9999;
+    #passwordScreen h2 { font-size: 1.45rem; color: #a5b4fc; letter-spacing: 1px; }
+
+    #passwordInput {
+      padding: 16px 20px; width: 100%; max-width: 320px; font-size: 1.2rem; 
+      border-radius: 12px; border: 2px solid #6b46c1; background: #1a0033; 
+      color: white; text-align: center;
+    }
+
+    #passwordScreen button {
+      padding: 14px 50px; font-size: 1.15rem;
+      background: linear-gradient(90deg, #7c3aed, #22d3ee);
+      border: none; border-radius: 50px; color: white; cursor: pointer;
+    }
+
+    #passwordError { color:#f87171; margin-top:10px; display:none; font-size: 1.1rem; }
+
+    /* MAIN HEADER */
+    header{ text-align:center; padding: 85px 20px 15px; position:relative; }
+    header h1{
+  font-size: 3.8rem;
+  font-family: Georgia, serif;
+  color: #ffcc00;
+  text-shadow: 0 0 20px rgba(255,204,0,0.5);
+  letter-spacing: 3px;
+  font-weight: 400;
 }
 
-input,button{
-padding:12px;
-border-radius:10px;
+    .header-buttons{ position:absolute; top:25px; right:20px; display:flex; gap:12px; z-index: 10; }
+
+    button{
+      padding:10px 20px; background:transparent; border:2px solid #22d3ee;
+      color:#22d3ee; border-radius:50px; cursor:pointer; font-weight:bold; 
+      transition:0.3s; font-size: 1.4rem;
+    }
+    button:hover{ background:#22d3ee; color:black; transform:scale(1.05); }
+
+    .delete-mode-btn{ border-color:#f87171; color:#f87171; }
+    .delete-mode-btn.active{ background:#f87171; color:white; }
+
+    .nav{ 
+      display:flex; justify-content:center; gap:8px; padding:12px 10px; 
+      background:#140029; flex-wrap:wrap; overflow-x:auto;
+    }
+    .nav-btn {
+      padding: 8px 16px;
+      font-size: 1rem;
+      background: transparent;
+      border: 1px solid #6b46c1;
+      color: #c4b5fd;
+      border-radius: 30px;
+      white-space: nowrap;
+      transition: 0.3s;
+    }
+    .nav-btn.active{ background:#7c3aed; border-color:#7c3aed; color:white; }
+
+    .section-dropdown{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:18px;
 }
 
-button{
-background:#22d3ee;
-border:none;
-cursor:pointer;
-font-weight:bold;
+#sectionSelect{
+  width:320px;
+  max-width:90%;
+  padding:14px 18px;
+  border-radius:16px;
+  border:2px solid #7c3aed;
+  background:#140029;
+  color:white;
+  font-size:1.1rem;
+  outline:none;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(124,58,237,0.3);
 }
 
-/* GALLERY */
-.gallery{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-padding:10px;
+#sectionSelect option{
+  background:#140029;
+  color:white;
+}
+    .gallery{
+      width:100%; padding:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+      scroll-behavior: smooth;
+    }
+    .nft-card{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  border-radius:12px;
+}
+    }
+    .nft-card:hover{ transform: scale(1.03); }
+
+    .nft-card img{
+      width:100%; aspect-ratio:1/1; object-fit:cover; display:block; loading: lazy;
+    }
+
+    .nft-card video{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
 }
 
-.nft-card{
-aspect-ratio:1/1;
-overflow:hidden;
-border-radius:10px;
-background:#111;
+    .nft-card.selected::after{
+      content: "✓"; position:absolute; top:10px; right:10px;
+      background:#22d3ee; color:black; width:32px; height:32px;
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-weight:bold; border:3px solid white;
+    }
+
+    @media(min-width:768px){ .gallery{ grid-template-columns:repeat(5,1fr); gap:15px; } }
+    @media(min-width:1024px){ .gallery{ grid-template-columns:repeat(6,1fr); gap:18px; padding:25px; } }
+
+    .modal{
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.97);
+      z-index:1000; justify-content:center; align-items:center; padding:15px;
+    }
+
+    .modal-content{
+      background: #1a0033;
+      width:100%; max-width:720px; border-radius:20px;
+      padding:15px; border:2px solid #22d3ee;
+      box-shadow:0 0 60px rgba(34, 211, 238, 0.3);
+      overflow:hidden;
+    }
+
+    #modalImage {
+      width: 100%; height: auto; max-height: 85vh;
+      object-fit: contain; border-radius: 12px; display: block;
+    }
+
+    .close{
+      position:absolute; top:20px; right:25px; font-size:45px;
+      cursor:pointer; color:#22d3ee; z-index: 100;
+    }
+
+    .loader-overlay{
+      position:fixed; inset:0; background:rgba(10,0,31,0.98);
+      display:none; justify-content:center; align-items:center;
+      flex-direction:column; z-index:99999;
+    }
+    .loader{ width:180px; height:180px; animation: bounce 1.4s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-45px); } }
+
+    .loader-text{ margin-top:25px; color:#22d3ee; font-size:2.2rem; font-weight:bold; }
+    .progress-text{ margin-top:10px; color:#fff; font-size:1.6rem; font-weight:bold; }
+    .nft-card video{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+  background:black;
 }
 
-.nft-card img,.nft-card video{
-width:100%;
-height:100%;
-object-fit:cover;
+.nft-card div{
+  height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#140029;
+  color:#22d3ee;
+  font-size:1.2rem;
+  border-radius:10px;
+}
+    .emoji-loader{
+  font-size:90px;
+  animation: float 1.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 25px rgba(255,255,255,0.5));
 }
 
-/* MODAL */
-.modal{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.9);
-justify-content:center;
-align-items:center;
+@keyframes float{
+  from{
+    transform: translateY(0px) scale(1);
+  }
+  to{
+    transform: translateY(-20px) scale(1.08);
+  }
 }
 
-.modal-content{
-width:90%;
-max-width:600px;
-background:#1a0033;
-padding:10px;
-border-radius:12px;
+.quote-text{
+  margin-top:20px;
+  font-size:1.3rem;
+  color:#c4b5fd;
+  text-align:center;
+  max-width:420px;
+  line-height:1.6;
+  opacity:0.95;
+  padding:0 20px;
 }
-
-#modalImage,#modalVideo{
-width:100%;
-display:none;
-}
-</style>
+  </style>
 </head>
-
 <body>
 
-<!-- PASSWORD -->
-<div id="passwordScreen">
-<h2>Enter Password</h2>
-<input id="passwordInput" type="password"/>
-<button onclick="checkPassword()">ENTER</button>
-<p id="passwordError" style="color:red;display:none;">Wrong Password</p>
+  <!-- PASSWORD SCREEN -->
+  <div id="passwordScreen">
+    <h1>MY GALLERY</h1>
+    <h2>Enter Password to Access</h2>
+    <input type="password" id="passwordInput" placeholder="Enter Password"/>
+    <button onclick="checkPassword()">ENTER GALLERY</button>
+    <p id="passwordError">❌ Wrong Password</p>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent" style="display:none;">
+    <header>
+      <h1>MY GALLERY</h1>
+      <div class="header-buttons">
+        <button id="uploadBtn" title="Upload Images">📤</button>
+        <button id="deleteModeBtn" class="delete-mode-btn" title="Delete Mode">🗑️</button>
+        <button id="editSectionsBtn" title="Edit Sections">✏️</button>
+      </div>
+    </header>
+
+    <div class="section-dropdown">
+  <select id="sectionSelect"></select>
 </div>
 
-<!-- MAIN -->
-<div id="mainContent" style="display:none;">
+    <section id="currentSection" class="section active">
+      <div class="gallery" id="currentGallery"></div>
+    </section>
 
-<h2 style="text-align:center;">MY GALLERY</h2>
+    <!-- Delete Bar -->
+    <div id="deleteBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#f87171; padding:15px 30px; border-radius:50px; color:white; font-weight:bold; box-shadow:0 0 25px rgba(248,113,113,0.7); z-index:10000;">
+      <span id="selectedCount">0 Selected</span>
+      <button onclick="deleteSelected()" style="margin-left:25px; background:white; color:#f87171; border:none; padding:10px 24px; border-radius:30px;">DELETE SELECTED</button>
+      <button onclick="exitDeleteMode()" style="margin-left:12px; background:transparent; border:2px solid white; color:white; padding:10px 20px; border-radius:30px;">Cancel</button>
+    </div>
+  </div>
 
-<div class="gallery" id="gallery"></div>
+  <!-- ==================== ATTRACTIVE UPLOAD MODAL ==================== -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content" style="max-width:480px; padding:40px 30px; background: linear-gradient(135deg, #1f003d, #2e0055); border:3px solid #22d3ee;">
+      <span class="close" onclick="closeModal('uploadModal')" style="color:#22d3ee; font-size:40px;">×</span>
+      
+      <h2 style="font-size:2.1rem; margin-bottom:8px; background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        📤 Upload Images
+      </h2>
+      <p style="color:#a5b4fc; margin-bottom:25px;">Choose your section and drop your memories</p>
+      
+      <input type="file" id="imageUpload" accept="image/*,video/*,application/pdf" multiple 
+             style="width:100%; padding:18px; background:#14002a; border:2px dashed #22d3ee; 
+                    border-radius:16px; color:white; text-align:center; cursor:pointer; margin-bottom:20px;"/>
+      
+      <select id="uploadSectionSelect" 
+              style="width:100%; padding:16px; margin-bottom:25px; background:#14002a; 
+                     border:2px solid #6b46c1; border-radius:12px; color:white; font-size:1.1rem;">
+      </select>
+      
+      <div style="margin-top:10px;">
+        <button onclick="uploadImages()" 
+                style="background:linear-gradient(90deg, #22d3ee, #7c3aed); color:black; border:none; 
+                       padding:16px 55px; font-size:1.2rem; border-radius:50px; font-weight:bold;">
+          🚀 Upload Now
+        </button>
+        <button onclick="closeModal('uploadModal')" 
+                style="background:transparent; border:2px solid #22d3ee; padding:16px 40px; 
+                       margin-left:15px; color:#22d3ee; border-radius:50px;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Edit Sections Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2>Edit Section Names</h2>
+      <div id="sectionsList" style="max-height:400px; overflow-y:auto; text-align:left; padding:10px;"></div>
+      <br>
+      <button onclick="saveSectionNames()" style="background:#22d3ee; color:black; padding:12px 30px;">SAVE CHANGES</button>
+      <button onclick="closeModal('editModal')" style="margin-left:10px;">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal" id="previewModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('previewModal')">×</span>
+
+    <img id="modalImage" src="" alt="Photo" style="display:none; width:100%; border-radius:12px;">
+
+    <video id="modalVideo" controls style="display:none; width:100%; border-radius:12px;"></video>
+  </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-<div class="modal-content">
+  <!-- Loader -->
+  <div class="loader-overlay" id="loader">
+    <div class="emoji-loader">📸</div>
 
-<img id="modalImage"/>
-<video id="modalVideo" controls></video>
-
+<div class="quote-text">
+  "Patience is the key to beautiful memories ✨"
 </div>
-</div>
+    <div class="loader-text" id="loaderText">Uploading... 🐱🐭</div>
+    <div class="progress-text" id="progressText">0 / 0</div>
+  </div>
 
-<script>
+  <script>
+    const SUPABASE_URL = "https://mqhckgezaxswrroqwnvt.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGNrZ2V6YXhzd3Jyb3F3bnZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjgzNzUsImV4cCI6MjA5NDcwNDM3NX0.6vtCwg6Wu0r4RSD6yAfCh4wP7aovhoEiBYpCRYMIe6s";
 
-/* APPWRITE INIT */
-const client = new Appwrite.Client()
-.setEndpoint("https://cloud.appwrite.io/v1")
-.setProject("6a114ad10016ccbf7c88");
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const databases = new Appwrite.Databases(client);
-const storage = new Appwrite.Storage(client);
+    let sections = [];
+    let currentSectionKey = "sec1";
+    let deleteMode = false;
+    let selectedIds = new Set();
+    const CORRECT_PASSWORD = "Krrish@123";
 
-const DATABASE_ID = "6a114c7a0009c6453772";
-const COLLECTION_ID = "photos_data";
+    // Sirf 5 Naye Sections
+    const newSections = [
+      { section_key: "sec16", section_name: "Macro Shots", position: 16 },
+      { section_key: "sec17", section_name: "Night Photography", position: 17 },
+      { section_key: "sec18", section_name: "Sports", position: 18 },
+      { section_key: "sec19", section_name: "Fashion", position: 19 },
+      { section_key: "sec20", section_name: "Memories", position: 20 }
+    ];
 
-const PASSWORD = "1234";
+    const videoSections = [
+  { section_key: "vid1", section_name: "Travel Videos", position: 101 },
+  { section_key: "vid2", section_name: "Reels", position: 102 },
+  { section_key: "vid3", section_name: "Memories", position: 103 },
+  { section_key: "vid4", section_name: "Events", position: 104 },
+  { section_key: "vid5", section_name: "Misc", position: 105 }
+];
 
-let currentSection = "sec1";
+    async function addNewSections() {
+      for (let sec of newSections) {
+        const { data } = await supabaseClient.from("gallery_sections").select("*").eq("section_key", sec.section_key).single();
+        if (!data) {
+          await supabaseClient.from("gallery_sections").insert(sec);
+        }
+      }
+    }
 
-/* PASSWORD FIXED */
-function checkPassword(){
+    async function addNewVideoSections() {
+  for (let sec of videoSections) {
+    const { data } = await supabaseClient
+      .from("gallery_sections")
+      .select("*")
+      .eq("section_key", sec.section_key)
+      .single();
 
-const val = document.getElementById("passwordInput").value;
-
-if(val === PASSWORD){
-
-document.getElementById("passwordScreen").style.display="none";
-document.getElementById("mainContent").style.display="block";
-
-loadPhotos();
-
-}else{
-document.getElementById("passwordError").style.display="block";
+    if (!data) {
+      await supabaseClient.from("gallery_sections").insert(sec);
+    }
+  }
 }
+
+    async function loadSections() {
+      await addNewSections();
+      await addNewVideoSections();
+      const { data } = await supabaseClient.from("gallery_sections").select("*").order("position");
+      sections = data || [];
+      renderNavigation();
+      if (sections.length > 0) {
+        currentSectionKey = sections[0].section_key;
+        loadPhotos(currentSectionKey);
+      }
+    }
+
+    async function renderNavigation() {
+
+  const select = document.getElementById("sectionSelect");
+
+  select.innerHTML = "";
+
+  for (const sec of sections) {
+
+    const { count } = await supabaseClient
+      .from("photos_data")
+      .select("*", { count: "exact", head: true })
+      .eq("section", sec.section_key);
+
+    const option = document.createElement("option");
+
+    option.value = sec.section_key;
+
+    option.textContent =
+      `${sec.section_name} (${count || 0})`;
+
+    if(sec.section_key === currentSectionKey){
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  }
+
+  select.onchange = () => {
+    currentSectionKey = select.value;
+    loadPhotos(currentSectionKey);
+  };
 }
 
-/* LOAD PHOTOS */
-async function loadPhotos(){
+    async function loadPhotos(sectionKey) {
+      const { data } = await supabaseClient.from("photos_data").select("*").eq("section", sectionKey).order("id", { ascending: false });
+      const gallery = document.getElementById("currentGallery");
+      gallery.innerHTML = "";
 
-try{
+      if (!data || data.length === 0) {
+        gallery.innerHTML = `<h2 style="text-align:center;padding:60px;color:#777;">No Photos Yet</h2>`;
+        return;
+      }
 
-const res = await databases.listDocuments(
-DATABASE_ID,
-COLLECTION_ID
-);
+      data.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "nft-card";
+        card.dataset.id = item.id;
+        if (item.file_type === "video") {
+  card.innerHTML = `
+    <video src="${item.img}" muted></video>
+  `;
+} 
+else if (item.file_type === "pdf") {
+  card.innerHTML = `
+    <div style="padding:20px;text-align:center;">
+      📄 PDF File
+    </div>
+  `;
+} 
+else {
+  const isVideo = item.img.includes(".mp4") || item.img.includes("video");
 
-const gallery = document.getElementById("gallery");
-gallery.innerHTML="";
-
-res.documents.forEach(item=>{
-
-const div = document.createElement("div");
-div.className="nft-card";
-
-const isVideo = item.file_type === "video";
-
-div.innerHTML = isVideo
-? `<video src="${item.img}" muted></video>`
-: `<img src="${item.img}"/>`;
-
-div.onclick = ()=>{
-
-document.getElementById("modal").style.display="flex";
-
-const img = document.getElementById("modalImage");
-const video = document.getElementById("modalVideo");
-
-img.style.display="none";
-video.style.display="none";
-
-if(isVideo){
-video.src=item.img;
-video.style.display="block";
-video.play();
-}else{
-img.src=item.img;
-img.style.display="block";
+card.innerHTML = isVideo
+  ? `<video src="${item.img}" muted playsinline></video>`
+  : `<img src="${item.img}" alt="Photo" loading="lazy">`;
 }
+        card.onclick = () => {
+  if (deleteMode) {
+    toggleSelect(card, item.id);
+  } else {
 
+    const img = document.getElementById("modalImage");
+    const video = document.getElementById("modalVideo");
+
+    img.style.display = "none";
+    video.style.display = "none";
+
+    if (item.file_type === "video") {
+      video.src = item.img;
+      video.style.display = "block";
+      video.controls = true;
+      video.autoplay = true;
+    } 
+    else {
+      img.src = item.img;
+      img.style.display = "block";
+    }
+
+    document.getElementById("previewModal").style.display = "flex";
+  }
 };
+        gallery.appendChild(card);
+      });
+    }
 
-gallery.appendChild(div);
+    function toggleSelect(card, id) {
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+        card.classList.remove("selected");
+      } else {
+        selectedIds.add(id);
+        card.classList.add("selected");
+      }
+      updateDeleteBar();
+    }
 
-});
+    function updateDeleteBar() {
+      const count = selectedIds.size;
+      document.getElementById("selectedCount").innerText = `${count} Selected`;
+      document.getElementById("deleteBar").style.display = count > 0 ? "flex" : "none";
+    }
 
-}catch(err){
-console.log(err);
-alert("Appwrite fetch error");
+    async function deleteSelected() {
+      if (!confirm(`Delete ${selectedIds.size} photos permanently?`)) return;
+      for (let id of selectedIds) {
+        try {
+          const { data: photo } = await supabaseClient.from("photos_data").select("img").eq("id", id).single();
+          if (photo?.img) {
+            const path = photo.img.split("/photos/")[1];
+            if (path) await supabaseClient.storage.from("photos").remove([path]);
+          }
+          await supabaseClient.from("photos_data").delete().eq("id", id);
+        } catch (e) {}
+      }
+      alert("Deleted Successfully");
+      exitDeleteMode();
+      loadPhotos(currentSectionKey);
+    }
+
+    function exitDeleteMode() {
+      deleteMode = false;
+      selectedIds.clear();
+      document.getElementById("deleteModeBtn").classList.remove("active");
+      document.getElementById("deleteBar").style.display = "none";
+      loadPhotos(currentSectionKey);
+    }
+
+    async function uploadImages() {
+      const files = document.getElementById("imageUpload").files;
+      if (files.length === 0) return alert("Please select images");
+
+      const loader = document.getElementById("loader");
+      loader.style.display = "flex";
+      document.getElementById("progressText").innerText = `0 / ${files.length}`;
+
+      const sectionKey = document.getElementById("uploadSectionSelect").value;
+      let count = 0;
+
+      for (let file of files) {
+        try {
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${file.name.split('.').pop()}`;
+          const path = `${sectionKey}/${fileName}`;
+
+          await supabaseClient.storage.from("photos").upload(path, file, { upsert: true });
+          const { data: urlData } = supabaseClient.storage.from("photos").getPublicUrl(path);
+
+          const fileType = file.type.startsWith("video/")
+  ? "video"
+  : file.type === "application/pdf"
+  ? "pdf"
+  : "image";
+
+await supabaseClient.from("photos_data").insert([{
+  title: "Untitled",
+  description: "",
+  img: urlData.publicUrl,
+  section: sectionKey,
+  file_type: fileType
+}]);
+
+          count++;
+          document.getElementById("progressText").innerText = `${count} / ${files.length}`;
+        } catch (err) { console.log(err); }
+      }
+
+      document.getElementById("loaderText").innerText = "✅ Upload Complete! 🎉";
+      setTimeout(() => {
+        loader.style.display = "none";
+        closeModal('uploadModal');
+        loadPhotos(currentSectionKey);
+      }, 1800);
+    }
+
+    function showEditModal() {
+      const list = document.getElementById("sectionsList");
+      list.innerHTML = "";
+      sections.forEach(sec => {
+        const div = document.createElement("div");
+        div.style.margin = "12px 0";
+        div.innerHTML = `<strong>${sec.section_key}:</strong> <input type="text" value="${sec.section_name}" data-key="${sec.section_key}" style="width:70%; padding:8px; border-radius:6px;">`;
+        list.appendChild(div);
+      });
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    async function saveSectionNames() {
+      const inputs = document.querySelectorAll("#sectionsList input");
+      for (let input of inputs) {
+        const key = input.dataset.key;
+        const name = input.value.trim();
+        if (name) {
+          await supabaseClient.from("gallery_sections").update({ section_name: name }).eq("section_key", key);
+        }
+      }
+      alert("Section names updated successfully!");
+      closeModal("editModal");
+      loadSections();
+    }
+
+    function closeModal(id) {
+  document.getElementById(id).style.display = "none";
+
+  const video = document.getElementById("modalVideo");
+  video.pause();
+  video.currentTime = 0;
 }
 
-}
+    function checkPassword() {
+      if (document.getElementById("passwordInput").value === CORRECT_PASSWORD) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+        loadSections();
+      } else {
+        document.getElementById("passwordError").style.display = "block";
+        setTimeout(() => document.getElementById("passwordError").style.display = "none", 2500);
+      }
+    }
 
-function closeModal(){
-document.getElementById("modal").style.display="none";
-}
+    // Event Listeners
+    document.getElementById("uploadBtn").addEventListener("click", () => {
+      const select = document.getElementById("uploadSectionSelect");
+      select.innerHTML = "";
+      sections.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.section_key;
+        opt.textContent = s.section_name;
+        select.appendChild(opt);
+      });
+      document.getElementById("uploadModal").style.display = "flex";
+    });
 
-document.getElementById("modal").onclick = closeModal;
+    document.getElementById("deleteModeBtn").addEventListener("click", () => {
+      deleteMode = !deleteMode;
+      document.getElementById("deleteModeBtn").classList.toggle("active", deleteMode);
+      if (!deleteMode) exitDeleteMode();
+    });
 
-</script>
+    document.getElementById("editSectionsBtn").addEventListener("click", showEditModal);
 
+    document.getElementById("passwordInput").addEventListener("keypress", e => {
+      if (e.key === "Enter") checkPassword();
+    });
+  </script>
 </body>
 </html>
