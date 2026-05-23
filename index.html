@@ -10,269 +10,242 @@
 <style>
 
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-  background:#0a001f;
-  color:white;
-  font-family:Arial,sans-serif;
-  overflow-x:hidden;
+background:#0a001f;
+color:white;
+font-family:Arial,sans-serif;
+overflow-x:hidden;
 }
 
 /* PASSWORD SCREEN */
 
 #passwordScreen{
-  position:fixed;
-  inset:0;
-  background:#0a001f;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  gap:25px;
-  z-index:9999;
-  padding:20px;
+position:fixed;
+inset:0;
+background:#0a001f;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+gap:25px;
+z-index:9999;
+padding:20px;
 }
 
 #passwordScreen h1{
-  font-size:4.5rem;
-  font-family:Georgia,serif;
-  background:linear-gradient(90deg,#ff0000,#ffff00);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  letter-spacing:4px;
-}
-
-#passwordScreen h2{
-  color:#a5b4fc;
+font-size:4.5rem;
+font-family:'Georgia',serif;
+background:linear-gradient(90deg,#ff0000,#ffff00);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+letter-spacing:4px;
 }
 
 #passwordInput{
-  padding:16px 20px;
-  width:100%;
-  max-width:320px;
-  font-size:1.2rem;
-  border-radius:12px;
-  border:2px solid #6b46c1;
-  background:#1a0033;
-  color:white;
-  text-align:center;
+padding:16px 20px;
+width:100%;
+max-width:320px;
+font-size:1.2rem;
+border-radius:12px;
+border:2px solid #6b46c1;
+background:#1a0033;
+color:white;
+text-align:center;
 }
 
 #passwordScreen button{
-  padding:14px 50px;
-  font-size:1.1rem;
-  background:linear-gradient(90deg,#7c3aed,#22d3ee);
-  border:none;
-  border-radius:50px;
-  color:white;
-  cursor:pointer;
+padding:14px 50px;
+font-size:1.15rem;
+background:linear-gradient(90deg,#7c3aed,#22d3ee);
+border:none;
+border-radius:50px;
+color:white;
+cursor:pointer;
 }
 
 #passwordError{
-  color:#f87171;
-  display:none;
+color:#f87171;
+display:none;
 }
 
 /* HEADER */
 
 header{
-  text-align:center;
-  padding:85px 20px 15px;
-  position:relative;
+text-align:center;
+padding:85px 20px 15px;
+position:relative;
 }
 
 header h1{
-  font-size:3.8rem;
-  font-family:Georgia,serif;
-  color:#ffcc00;
+font-size:3.8rem;
+font-family:Georgia,serif;
+color:#ffcc00;
 }
 
 .header-buttons{
-  position:absolute;
-  top:25px;
-  right:20px;
-  display:flex;
-  gap:12px;
+position:absolute;
+top:25px;
+right:20px;
+display:flex;
+gap:12px;
 }
 
 button{
-  padding:10px 20px;
-  background:transparent;
-  border:2px solid #22d3ee;
-  color:#22d3ee;
-  border-radius:50px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.delete-mode-btn{
-  border-color:#f87171;
-  color:#f87171;
-}
-
-.delete-mode-btn.active{
-  background:#f87171;
-  color:white;
+padding:10px 20px;
+background:transparent;
+border:2px solid #22d3ee;
+color:#22d3ee;
+border-radius:50px;
+cursor:pointer;
+font-weight:bold;
+font-size:1.2rem;
 }
 
 .section-dropdown{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  padding:18px;
+width:100%;
+display:flex;
+justify-content:center;
+padding:18px;
 }
 
 #sectionSelect{
-  width:320px;
-  max-width:90%;
-  padding:14px 18px;
-  border-radius:16px;
-  border:2px solid #7c3aed;
-  background:#140029;
-  color:white;
-  font-size:1.1rem;
+width:320px;
+max-width:90%;
+padding:14px 18px;
+border-radius:16px;
+border:2px solid #7c3aed;
+background:#140029;
+color:white;
+font-size:1.1rem;
+outline:none;
 }
 
+/* GALLERY */
+
 .gallery{
-  width:100%;
-  padding:15px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+width:100%;
+padding:15px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
 }
 
 .nft-card{
-  position:relative;
-  width:100%;
-  aspect-ratio:1/1;
-  overflow:hidden;
-  border-radius:14px;
-  background:#16002d;
-  border:1px solid #4c1d95;
+position:relative;
+width:100%;
+aspect-ratio:1/1;
+overflow:hidden;
+border-radius:12px;
+background:#140029;
 }
 
 .nft-card img,
 .nft-card video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-.nft-card.selected::after{
-  content:"✓";
-  position:absolute;
-  top:10px;
-  right:10px;
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  background:#22d3ee;
-  color:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-weight:bold;
+width:100%;
+height:100%;
+object-fit:cover;
+display:block;
 }
 
 @media(min-width:768px){
-  .gallery{
-    grid-template-columns:repeat(5,1fr);
-  }
+.gallery{
+grid-template-columns:repeat(5,1fr);
+}
 }
 
 @media(min-width:1024px){
-  .gallery{
-    grid-template-columns:repeat(6,1fr);
-  }
+.gallery{
+grid-template-columns:repeat(6,1fr);
+}
 }
 
 /* MODAL */
 
 .modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.96);
-  z-index:1000;
-  justify-content:center;
-  align-items:center;
-  padding:15px;
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.95);
+z-index:9999;
+justify-content:center;
+align-items:center;
+padding:20px;
 }
 
 .modal-content{
-  background:#1a0033;
-  width:100%;
-  max-width:720px;
-  border-radius:20px;
-  padding:15px;
-  border:2px solid #22d3ee;
+background:#1a0033;
+width:100%;
+max-width:720px;
+border-radius:20px;
+padding:15px;
+border:2px solid #22d3ee;
+position:relative;
+}
+
+.close{
+position:absolute;
+top:15px;
+right:20px;
+font-size:40px;
+cursor:pointer;
+color:#22d3ee;
 }
 
 #modalImage,
 #modalVideo{
-  width:100%;
-  max-height:85vh;
-  object-fit:contain;
-  border-radius:12px;
-}
-
-.close{
-  position:absolute;
-  top:20px;
-  right:25px;
-  font-size:45px;
-  cursor:pointer;
-  color:#22d3ee;
+width:100%;
+max-height:85vh;
+object-fit:contain;
+border-radius:12px;
 }
 
 /* LOADER */
 
 .loader-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(10,0,31,0.98);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:99999;
+position:fixed;
+inset:0;
+background:rgba(10,0,31,0.98);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99999;
 }
 
 .emoji-loader{
-  font-size:90px;
-  animation:float 1.5s ease-in-out infinite alternate;
+font-size:90px;
+animation:float 1.5s infinite alternate;
 }
 
 @keyframes float{
-  from{
-    transform:translateY(0px);
-  }
-  to{
-    transform:translateY(-20px);
-  }
+from{
+transform:translateY(0px);
+}
+to{
+transform:translateY(-20px);
+}
 }
 
 .quote-text{
-  margin-top:20px;
-  font-size:1.3rem;
-  color:#c4b5fd;
-  text-align:center;
+margin-top:20px;
+font-size:1.3rem;
+color:#c4b5fd;
+text-align:center;
 }
 
 .loader-text{
-  margin-top:20px;
-  font-size:2rem;
-  color:#22d3ee;
+margin-top:20px;
+font-size:2rem;
 }
 
 .progress-text{
-  margin-top:10px;
-  font-size:1.4rem;
+margin-top:10px;
+font-size:1.3rem;
 }
 
 </style>
@@ -283,16 +256,23 @@ button{
 <!-- PASSWORD -->
 
 <div id="passwordScreen">
-  <h1>MY GALLERY</h1>
-  <h2>Enter Password to Access</h2>
 
-  <input type="password" id="passwordInput" placeholder="Enter Password">
+<h1>MY GALLERY</h1>
 
-  <button onclick="checkPassword()">
-    ENTER GALLERY
-  </button>
+<input
+type="password"
+id="passwordInput"
+placeholder="Enter Password"
+/>
 
-  <p id="passwordError">❌ Wrong Password</p>
+<button onclick="checkPassword()">
+ENTER GALLERY
+</button>
+
+<p id="passwordError">
+❌ Wrong Password
+</p>
+
 </div>
 
 <!-- MAIN -->
@@ -305,10 +285,8 @@ button{
 
 <div class="header-buttons">
 
-<button id="uploadBtn">📤</button>
-
-<button id="deleteModeBtn" class="delete-mode-btn">
-🗑️
+<button id="uploadBtn">
+📤
 </button>
 
 </div>
@@ -316,11 +294,15 @@ button{
 </header>
 
 <div class="section-dropdown">
+
 <select id="sectionSelect"></select>
+
 </div>
 
 <section>
+
 <div class="gallery" id="currentGallery"></div>
+
 </section>
 
 </div>
@@ -329,9 +311,12 @@ button{
 
 <div class="modal" id="uploadModal">
 
-<div class="modal-content" style="max-width:480px;">
+<div class="modal-content">
 
-<span class="close" onclick="closeModal('uploadModal')">
+<span
+class="close"
+onclick="closeModal('uploadModal')"
+>
 ×
 </span>
 
@@ -366,7 +351,8 @@ border:2px solid #6b46c1;
 border-radius:12px;
 color:white;
 font-size:1.1rem;
-">
+"
+>
 </select>
 
 <button onclick="uploadImages()">
@@ -377,22 +363,29 @@ font-size:1.1rem;
 
 </div>
 
-<!-- PREVIEW MODAL -->
+<!-- PREVIEW -->
 
 <div class="modal" id="previewModal">
 
 <div class="modal-content">
 
-<span class="close" onclick="closeModal('previewModal')">
+<span
+class="close"
+onclick="closeModal('previewModal')"
+>
 ×
 </span>
 
-<img id="modalImage" style="display:none;">
+<img
+id="modalImage"
+style="display:none;"
+>
 
 <video
 id="modalVideo"
 controls
-style="display:none;">
+style="display:none;"
+>
 </video>
 
 </div>
@@ -403,10 +396,12 @@ style="display:none;">
 
 <div class="loader-overlay" id="loader">
 
-<div class="emoji-loader">📸</div>
+<div class="emoji-loader">
+📸
+</div>
 
 <div class="quote-text">
-Patience is the key to beautiful memories ✨
+"Patience is the key to beautiful memories ✨"
 </div>
 
 <div class="loader-text" id="loaderText">
@@ -429,137 +424,55 @@ client
 .setEndpoint("https://cloud.appwrite.io/v1")
 .setProject("6a114ad10016ccbf7c88");
 
-const databases = new Appwrite.Databases(client);
 const storage = new Appwrite.Storage(client);
 
-const DATABASE_ID = "6a114c7a0009c6453772";
-const BUCKET_ID = "6a114b82002393c33f7d";
+const databases = new Appwrite.TablesDB(client);
 
-/* IMPORTANT */
-/* YAHAN APNI REAL COLLECTION IDS DALO */
+const ID = Appwrite.ID;
+
+/* ================= IDs ================= */
+
+const DATABASE_ID = "6a114c7a0009c6453772";
 
 const SECTIONS_COLLECTION = "gallery_sections";
+
 const PHOTOS_COLLECTION = "photos_data";
 
-/* ================= VARIABLES ================= */
+const BUCKET_ID = "6a114b82002393c33f7d";
 
-const CORRECT_PASSWORD = "Krrish@123";
+/* ================= APP ================= */
 
 let sections = [];
 
-let currentSectionKey = "";
+let currentSectionKey = "sec1";
 
-let deleteMode = false;
-
-let selectedIds = new Set();
-
-/* ================= DEFAULT SECTIONS ================= */
-
-const defaultSections = [
-
-{
-section_key:"sec1",
-section_name:"Photos",
-position:1
-},
-
-{
-section_key:"video1",
-section_name:"Travel Videos",
-position:2
-},
-
-{
-section_key:"video2",
-section_name:"Funny Videos",
-position:3
-},
-
-{
-section_key:"video3",
-section_name:"Memories Videos",
-position:4
-},
-
-{
-section_key:"video4",
-section_name:"Editing Clips",
-position:5
-},
-
-{
-section_key:"video5",
-section_name:"Random Videos",
-position:6
-}
-
-];
+const CORRECT_PASSWORD = "Krrish@123";
 
 /* ================= PASSWORD ================= */
 
 function checkPassword(){
 
-const input =
+const pass =
 document.getElementById("passwordInput").value;
 
-if(input === CORRECT_PASSWORD){
+if(pass === CORRECT_PASSWORD){
 
-document.getElementById("passwordScreen").style.display = "none";
+document.getElementById(
+"passwordScreen"
+).style.display = "none";
 
-document.getElementById("mainContent").style.display = "block";
+document.getElementById(
+"mainContent"
+).style.display = "block";
 
 loadSections();
 
 }else{
 
-document.getElementById("passwordError").style.display = "block";
-
-setTimeout(()=>{
-
-document.getElementById("passwordError").style.display = "none";
-
-},2000);
-
+document.getElementById(
+"passwordError"
+).style.display = "block";
 }
-
-}
-
-/* ================= ADD DEFAULT SECTIONS ================= */
-
-async function addDefaultSections(){
-
-try{
-
-const response =
-await databases.listDocuments(
-DATABASE_ID,
-SECTIONS_COLLECTION
-);
-
-const existing =
-response.documents.map(d => d.section_key);
-
-for(const sec of defaultSections){
-
-if(!existing.includes(sec.section_key)){
-
-await databases.createDocument(
-DATABASE_ID,
-SECTIONS_COLLECTION,
-Appwrite.ID.unique(),
-sec
-);
-
-}
-
-}
-
-}catch(err){
-
-console.log(err);
-
-}
-
 }
 
 /* ================= LOAD SECTIONS ================= */
@@ -568,36 +481,30 @@ async function loadSections(){
 
 try{
 
-await addDefaultSections();
-
 const response =
-await databases.listDocuments(
+await databases.listRows(
 DATABASE_ID,
 SECTIONS_COLLECTION
 );
 
-sections = response.documents.sort(
-(a,b)=>a.position-b.position
-);
+sections = response.rows;
 
 renderNavigation();
 
 if(sections.length > 0){
 
-currentSectionKey = sections[0].section_key;
+currentSectionKey =
+sections[0].section_key;
 
 loadPhotos(currentSectionKey);
-
 }
 
 }catch(err){
 
 console.log(err);
 
-alert(err.message);
-
+alert("Sections failed");
 }
-
 }
 
 /* ================= NAVIGATION ================= */
@@ -627,67 +534,63 @@ select.onchange = ()=>{
 currentSectionKey = select.value;
 
 loadPhotos(currentSectionKey);
-
 };
-
 }
 
 /* ================= LOAD PHOTOS ================= */
 
 async function loadPhotos(sectionKey){
 
+try{
+
+const response =
+await databases.listRows(
+DATABASE_ID,
+PHOTOS_COLLECTION
+);
+
 const gallery =
 document.getElementById("currentGallery");
 
 gallery.innerHTML = "";
 
-try{
-
-const response =
-await databases.listDocuments(
-DATABASE_ID,
-PHOTOS_COLLECTION,
-[
-Appwrite.Query.equal(
-"section",
-sectionKey
-)
-]
+const filtered =
+response.rows.filter(
+item => item.section === sectionKey
 );
 
-if(response.documents.length === 0){
+if(filtered.length === 0){
 
 gallery.innerHTML =
 `
-<h2 style="padding:60px;">
+<h2 style="
+text-align:center;
+padding:60px;
+color:#777;
+">
 No Files Yet
 </h2>
 `;
 
 return;
-
 }
 
-response.documents.forEach(item=>{
+filtered.reverse().forEach(item=>{
 
 const card =
 document.createElement("div");
 
 card.className = "nft-card";
 
-card.dataset.id = item.$id;
-
-/* VIDEO */
-
-if(item.type === "video"){
+if(item.file_type === "video"){
 
 card.innerHTML =
 `
 <video
 src="${item.img}"
 muted
-playsinline>
-</video>
+playsinline
+></video>
 `;
 
 }else{
@@ -696,20 +599,12 @@ card.innerHTML =
 `
 <img
 src="${item.img}"
-loading="lazy">
+loading="lazy"
+>
 `;
-
 }
 
-/* CLICK */
-
 card.onclick = ()=>{
-
-if(deleteMode){
-
-toggleSelect(card,item.$id);
-
-}else{
 
 const img =
 document.getElementById("modalImage");
@@ -721,7 +616,7 @@ img.style.display = "none";
 
 video.style.display = "none";
 
-if(item.type === "video"){
+if(item.file_type === "video"){
 
 video.src = item.img;
 
@@ -734,13 +629,11 @@ video.play();
 img.src = item.img;
 
 img.style.display = "block";
-
 }
 
-document.getElementById("previewModal").style.display = "flex";
-
-}
-
+document.getElementById(
+"previewModal"
+).style.display = "flex";
 };
 
 gallery.appendChild(card);
@@ -751,8 +644,8 @@ gallery.appendChild(card);
 
 console.log(err);
 
+alert("Gallery failed");
 }
-
 }
 
 /* ================= UPLOAD ================= */
@@ -760,14 +653,15 @@ console.log(err);
 async function uploadImages(){
 
 const files =
-document.getElementById("imageUpload").files;
+document.getElementById(
+"imageUpload"
+).files;
 
 if(files.length === 0){
 
 alert("Select files");
 
 return;
-
 }
 
 const loader =
@@ -775,55 +669,64 @@ document.getElementById("loader");
 
 loader.style.display = "flex";
 
+document.getElementById(
+"progressText"
+).innerText =
+`0 / ${files.length}`;
+
 const sectionKey =
-document.getElementById("uploadSectionSelect").value;
+document.getElementById(
+"uploadSectionSelect"
+).value;
 
 let count = 0;
 
-for(const file of files){
+for(let file of files){
 
 try{
 
-const result =
+const uploaded =
 await storage.createFile(
 BUCKET_ID,
-Appwrite.ID.unique(),
+ID.unique(),
 file
 );
 
 const fileUrl =
-`https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${result.$id}/view?project=6a114ad10016ccbf7c88`;
+`https://cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${uploaded.$id}/view?project=6a114ad10016ccbf7c88`;
 
 const type =
 file.type.startsWith("video")
 ? "video"
 : "image";
 
-await databases.createDocument(
+await databases.createRow(
 DATABASE_ID,
 PHOTOS_COLLECTION,
-Appwrite.ID.unique(),
+ID.unique(),
 {
 img:fileUrl,
 section:sectionKey,
-type:type
+file_type:type
 }
 );
 
 count++;
 
-document.getElementById("progressText").innerText =
+document.getElementById(
+"progressText"
+).innerText =
 `${count} / ${files.length}`;
 
 }catch(err){
 
 console.log(err);
-
+}
 }
 
-}
-
-document.getElementById("loaderText").innerText =
+document.getElementById(
+"loaderText"
+).innerText =
 "✅ Upload Complete!";
 
 setTimeout(()=>{
@@ -835,50 +738,30 @@ closeModal("uploadModal");
 loadPhotos(currentSectionKey);
 
 },1500);
-
 }
 
-/* ================= DELETE ================= */
-
-function toggleSelect(card,id){
-
-if(selectedIds.has(id)){
-
-selectedIds.delete(id);
-
-card.classList.remove("selected");
-
-}else{
-
-selectedIds.add(id);
-
-card.classList.add("selected");
-
-}
-
-}
-
-/* ================= CLOSE MODAL ================= */
+/* ================= MODAL ================= */
 
 function closeModal(id){
 
-document.getElementById(id).style.display = "none";
+document.getElementById(id)
+.style.display = "none";
 
-const video =
-document.getElementById("modalVideo");
-
-video.pause();
-
+document.getElementById(
+"modalVideo"
+).pause();
 }
 
 /* ================= EVENTS ================= */
 
-document
-.getElementById("uploadBtn")
-.addEventListener("click",()=>{
+document.getElementById(
+"uploadBtn"
+).addEventListener("click",()=>{
 
 const select =
-document.getElementById("uploadSectionSelect");
+document.getElementById(
+"uploadSectionSelect"
+);
 
 select.innerHTML = "";
 
@@ -889,26 +772,25 @@ document.createElement("option");
 
 opt.value = sec.section_key;
 
-opt.textContent = sec.section_name;
+opt.textContent =
+sec.section_name;
 
 select.appendChild(opt);
-
 });
 
-document.getElementById("uploadModal").style.display = "flex";
-
+document.getElementById(
+"uploadModal"
+).style.display = "flex";
 });
 
-document
-.getElementById("passwordInput")
-.addEventListener("keypress",(e)=>{
+document.getElementById(
+"passwordInput"
+).addEventListener("keypress",e=>{
 
 if(e.key === "Enter"){
 
 checkPassword();
-
 }
-
 });
 
 </script>
